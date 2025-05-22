@@ -61,6 +61,8 @@ public class YourService extends KiboRpcService {
     };
     @Override
     protected void runPlan1(){
+
+        //plz use Exception Handling ( try catch )for safetycode
         Log.i(TAG,"startMissionTest");
 
         // The mission starts.
@@ -71,22 +73,53 @@ public class YourService extends KiboRpcService {
         Quaternion quaternion = new Quaternion(0f, 0f, -0.707f, 0.707f);
         api.moveTo(point, quaternion, false);
 
-        // Get a camera image.
-        Mat image = api.getMatNavCam();
+        //retry process
+        int loopCounter =0;
+        int loopMax=5;
+        Mat image = new Mat();
 
-        //Save image ถ่ายรูแฮั่นล่ะแชะๆ
-        api.saveMatImage(image,"TestArea1.png");
+        while(loopCounter< loopMax){
+            // Get a camera image.
+            image = api.getMatNavCam();
 
-        /* ******************************************************************************** */
-        /* Write your code to recognize the type and number of landmark items in each area! */
-        /* If there is a treasure item, remember it.                                        */
-        /* ******************************************************************************** */
+            if(image == null){
+                Log.i(TAG,"image was null cannot connect camera maybe? not sure");
+                return;
+            }
 
-        //detect AR
-        Dictionary dictionary = Aruco.getPredefinedDictionary(Aruco.DICT_5X5_250);
-        List<Mat> corners = new ArrayList<>();
-        Mat markerIds = new Mat();
-        Aruco.detectMarkers(image,dictionary,corners,markerIds);
+            //Save image ถ่ายรูแฮั่นล่ะแชะๆ
+            api.saveMatImage(image,"TestArea1.png");
+
+            /* ******************************************************************************** */
+            /* Write your code to recognize the type and number of landmark items in each area! */
+            /* If there is a treasure item, remember it.                                        */
+            /* ******************************************************************************** */
+
+            //===========AR section===
+            //detect AR
+            Dictionary dictionary = Aruco.getPredefinedDictionary(Aruco.DICT_5X5_250);
+            List<Mat> corners = new ArrayList<>();
+            Mat markerIds = new Mat();
+            Aruco.detectMarkers(image,dictionary,corners,markerIds);
+
+            //Get corner information
+            for(Mat corner:corners){
+                //Process the corner to determine the rotaion vector and translation vector
+
+            }
+
+            //check AR
+            if(corners.isEmpty()){
+                Log.w(TAG,"Cannot detect AR");
+                //corner is list of Ar tag information naja jubjub
+                loopCounter++;
+            }else{
+                break;
+            }
+        }
+
+
+
 
         ///===correcting image distortion======
         //Get camera matrix
@@ -165,6 +198,9 @@ public class YourService extends KiboRpcService {
                                 if(thresholdedResult.get(y,x)[0]>0){
 //                                    matchCnt++;
                                     matches.add(new org.opencv.core.Point(x,y));
+                                    Log.i(TAG,"matches somthing IDK");
+//                                    Log.i(TAG, String.valueOf(filteredMatches.size()));
+
                                 }
                             }
                         }
