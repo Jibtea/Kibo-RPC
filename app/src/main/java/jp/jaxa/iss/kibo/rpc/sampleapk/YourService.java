@@ -32,7 +32,7 @@ import org.opencv.android.Utils;
 
 public class YourService extends KiboRpcService {
 
-    private final String TAG =this.getClass().getSimpleName();
+    private final String TAG = this.getClass().getSimpleName();
     //template file name
     private final String[] TEMPLATE_FILE_NAME ={
       "coin.png",
@@ -68,17 +68,39 @@ public class YourService extends KiboRpcService {
         // The mission starts.
         api.startMission();
 
-        // Move to a point.
-        Point point = new Point(10.9d, -9.92284d, 5.195d);
-        Quaternion quaternion = new Quaternion(0f, 0f, -0.707f, 0.707f);
-        api.moveTo(point, quaternion, false);
+        //========Move to a point program========
+//        Point point = new Point(10.9d, -9.92284d, 5.195d);
+//        Quaternion quaternion = new Quaternion(0f, 0f, -0.707f, 0.707f);
+//        api.moveTo(point, quaternion, false);
 
+        //oasis info put into List
+        List<Point> oasispoint = new ArrayList<Point>();
+        List<Quaternion> oasisQuaternion = new ArrayList<Quaternion>();
+        //oasis1
+        oasispoint.add(new Point(10.925d, -9.85d, 4.695d));
+        oasisQuaternion.add(new Quaternion(0f, 0f, -0.707f, 0.707f));
+        //oasis2
+        oasispoint.add(new Point(11.175d, -8.975d, 5.195d));
+        oasisQuaternion.add(new Quaternion(0f, 0f, -0.707f, 0.707f));
+        //oasis3
+        oasispoint.add(new Point(10.7d, -7.925d, 5.195d));
+        oasisQuaternion.add(new Quaternion(0f, 0f, -0.707f, 0.707f));
+        //oasis4
+        oasispoint.add(new Point(11.175d, -6.875d, 4.685d));
+        oasisQuaternion.add(new Quaternion(0f, 0f, -0.707f, 0.707f));
+
+
+
+        //=======out off my responsibillity i will create it to some func?
         //retry process
         int loopCounter =0;
         int loopMax=5;
+        int num=0;
         Mat image = new Mat();
 
         while(loopCounter< loopMax){
+            //move to every oasis until find every area
+            api.moveTo(oasispoint.get(num), oasisQuaternion.get(num), false);
             // Get a camera image.
             image = api.getMatNavCam();
 
@@ -89,6 +111,7 @@ public class YourService extends KiboRpcService {
 
             //Save image ถ่ายรูแฮั่นล่ะแชะๆ
             api.saveMatImage(image,"TestArea1.png");
+//            api.saveMatImage(image, "TestArea" + (i+1) + ".png");
 
             /* ******************************************************************************** */
             /* Write your code to recognize the type and number of landmark items in each area! */
@@ -112,8 +135,10 @@ public class YourService extends KiboRpcService {
             if(corners.isEmpty()){
                 Log.w(TAG,"Cannot detect AR");
                 //corner is list of Ar tag information naja jubjub
+                num++;
                 loopCounter++;
             }else{
+                Log.w(TAG,"brake");
                 break;
             }
         }
@@ -219,17 +244,28 @@ public class YourService extends KiboRpcService {
         int mostMatchTemplateNum = getMaxIndex(templateMatchCnt);
         api.setAreaInfo(1,TEMPLATE_NAME[mostMatchTemplateNum],templateMatchCnt[mostMatchTemplateNum]);
 
-
         // When you recognize landmark items, let’s set the type and number.
         api.setAreaInfo(1, "item_name", 1);
 
         /* **************************************************** */
         /* Let's move to each area and recognize the items. */
+
         /* **************************************************** */
 
+
+        //=====move test ======
+        for(int i=0;i<4;i++){
+            api.moveTo(oasispoint.get(i), oasisQuaternion.get(i), false);
+        }
+        //=====stop test====
+
+
+        //===========move to astronaut==================
         // When you move to the front of the astronaut, report the rounding completion.
-        point = new Point(11.143d, -6.7607d, 4.9654d);
-        quaternion = new Quaternion(0f, 0f, 0.707f, 0.707f);
+        Point point = new Point(11.143d, -6.7607d, 4.9654d);
+        Quaternion quaternion = new Quaternion(0f, 0f, 0.707f, 0.707f);
+//        point = new Point(11.143d, -6.7607d, 4.9654d);
+//        quaternion = new Quaternion(0f, 0f, 0.707f, 0.707f);
         api.moveTo(point, quaternion, false);
         api.reportRoundingCompletion();
 
