@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import jp.jaxa.iss.kibo.rpc.api.KiboRpcService;
+import jp.jaxa.iss.kibo.rpc.sampleapk.utils.ImageUtils;
 
 import gov.nasa.arc.astrobee.types.Point;
 import gov.nasa.arc.astrobee.types.Quaternion;
@@ -204,8 +205,8 @@ public class YourService extends KiboRpcService {
 
                 for (int size = widthMin; size < widthMax; size += changeWidth) {
                     for (int angle = 0; angle < 360; angle += changeAngle) {
-                        Mat resizedTemp = resizeImg(template, size);
-                        Mat rotResizedTemp = rotImg(resizedTemp, angle);
+                        Mat resizedTemp = ImageUtils.resizeImg(template, size);
+                        Mat rotResizedTemp = ImageUtils.rotImg(resizedTemp, angle);
 
                         Mat result = new Mat();
                         Imgproc.matchTemplate(targetImg, rotResizedTemp, result, Imgproc.TM_CCOEFF_NORMED);
@@ -234,7 +235,7 @@ public class YourService extends KiboRpcService {
                     }
                 }
 
-                List<org.opencv.core.Point> filteredMatches = removeDuplicates(matches);
+                List<org.opencv.core.Point> filteredMatches = ImageUtils.removeDuplicates(matches);
                 matchCnt += filteredMatches.size();
 
                 templateMatchCnt[tempNum] = matchCnt;
@@ -242,7 +243,7 @@ public class YourService extends KiboRpcService {
             }
 
             //When u recognize landmark items let's type num
-            int mostMatchTemplateNum = getMaxIndex(templateMatchCnt);
+            int mostMatchTemplateNum = ImageUtils.getMaxIndex(templateMatchCnt);
             api.setAreaInfo(num, TEMPLATE_NAME[mostMatchTemplateNum], templateMatchCnt[mostMatchTemplateNum]);
 
             // When you recognize landmark items, let’s set the type and number.
@@ -298,71 +299,12 @@ public class YourService extends KiboRpcService {
         return "your method";
     }
 
-    //REsize image
-    private Mat resizeImg(Mat img, int width) {
-        int height = (int) (img.rows() * ((double) width / img.cols()));
-        Mat resizedImg = new Mat();
-        Imgproc.resize(img, resizedImg, new Size(width, height));
-
-        return resizedImg;
-    }
-
-    //rotate image
-    private Mat rotImg(Mat img, int angle) {
-        org.opencv.core.Point center = new org.opencv.core.Point(img.cols() / 2.0, img.rows() / 2.0);
-        Mat rotatedMat = Imgproc.getRotationMatrix2D(center, angle, 1.0);
-        Mat rotatedImg = new Mat();
-        Imgproc.warpAffine(img, rotatedImg, rotatedMat, img.size());
-        return rotatedImg;
-    }
-
-    //remove multiple direction
-    private List<org.opencv.core.Point> removeDuplicates(List<org.opencv.core.Point> points) {
-        double lenght = 10;
-        List<org.opencv.core.Point> filteredList = new ArrayList<>();
-
-        for (org.opencv.core.Point point : points) {
-            boolean isInclude = false;
-            for (org.opencv.core.Point checkPoint : filteredList) {
-                double distance = calculateDistance(point, checkPoint);
-
-                if (distance <= lenght) {
-                    isInclude = true;
-                    break;
-                }
-            }
-            if (!isInclude) {
-                filteredList.add(point);
-            }
-        }
-
-        return filteredList;
-
-    }
-
-    //calculate between two point
-    private double calculateDistance(org.opencv.core.Point p1, org.opencv.core.Point p2) {
-        double dx = p1.x - p2.x;
-        double dy = p1.y - p2.y;
-
-        return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-    }
-
-
-    //maximum value of array
-    private int getMaxIndex(int[] array) {
-        int max = 0;
-        int maxIndex = 0;
-
-        //find index of element with largest value
-        for (int i = 0; i < array.length; i++) {
-            if (array[i] > max) {
-                max = array[i];
-                maxIndex = i;
-            }
-        }
-        return maxIndex;
-    }
+    // The following utility methods have been moved to ImageUtils:
+    // - resizeImg
+    // - rotImg
+    // - removeDuplicates
+    // - calculateDistance
+    // - getMaxIndex
 }
 
 
