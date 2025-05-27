@@ -63,4 +63,21 @@ public class ImageUtils {
         }
         return maxIndex;
     }
+
+    /**
+     * Undistorts the given image using camera intrinsics.
+     * @param image Input image
+     * @param intrinsics Camera intrinsics (double[2][5] or similar)
+     * @return Undistorted image
+     */
+    public static Mat undistortImage(Mat image, double[][] intrinsics) {
+        org.opencv.core.Mat cameraMatrix = new org.opencv.core.Mat(3, 3, org.opencv.core.CvType.CV_64F);
+        cameraMatrix.put(0, 0, intrinsics[0]);
+        org.opencv.core.Mat cameraCoefficients = new org.opencv.core.Mat(1, 5, org.opencv.core.CvType.CV_64F);
+        cameraCoefficients.put(0, 0, intrinsics[1]);
+        cameraCoefficients.convertTo(cameraCoefficients, org.opencv.core.CvType.CV_64F);
+        org.opencv.core.Mat undistortImg = new org.opencv.core.Mat();
+        org.opencv.calib3d.Calib3d.undistort(image, undistortImg, cameraMatrix, cameraCoefficients);
+        return undistortImg;
+    }
 }
