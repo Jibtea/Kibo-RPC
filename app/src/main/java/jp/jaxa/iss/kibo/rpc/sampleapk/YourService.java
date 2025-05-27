@@ -1,17 +1,11 @@
 package jp.jaxa.iss.kibo.rpc.sampleapk;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.util.Log;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import jp.jaxa.iss.kibo.rpc.api.KiboRpcService;
 import jp.jaxa.iss.kibo.rpc.sampleapk.utils.ImageUtils;
-import jp.jaxa.iss.kibo.rpc.sampleapk.vision.ArMarkerDetector;
 import jp.jaxa.iss.kibo.rpc.sampleapk.vision.TemplateMatcher;
 import jp.jaxa.iss.kibo.rpc.sampleapk.oasis.OasisUtils;
 import jp.jaxa.iss.kibo.rpc.sampleapk.ar.ArDetectionUtils;
@@ -21,11 +15,7 @@ import jp.jaxa.iss.kibo.rpc.sampleapk.util.AreaRecognitionUtils;
 import gov.nasa.arc.astrobee.types.Point;
 import gov.nasa.arc.astrobee.types.Quaternion;
 
-import org.opencv.aruco.Aruco;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.imgproc.Imgproc;
-import org.opencv.android.Utils;
 
 /**
  * Main service class for handling Kibo RPC mission logic.
@@ -56,59 +46,12 @@ public class YourService extends KiboRpcService {
         List<Quaternion> oasisQuaternions = OasisUtils.getOasisQuaternions();
         int arCounter = 0;
         for (int areaIdx = 0; areaIdx < OASIS_AREA_COUNT; areaIdx++) {
-            arCounter += scanOasisArea(areaIdx, oasisPoints, oasisQuaternions);
-            processAreaRecognition(areaIdx);
+            arCounter += OasisUtils.scanOasisArea(api, areaIdx, oasisPoints, oasisQuaternions);
+            //processAreaRecognition(areaIdx);
         }
         AstronautUtils.moveToAstronautAndReport(api);
         AstronautUtils.recognizeAndReportTargetItem(api);
         AstronautUtils.moveToTargetItemAndSnapshot(api);
-    }
-
-    /**
-     * Scans an oasis area by moving to each orientation and detecting AR markers.
-     * @param areaIdx Index of the area
-     * @param oasisPoints List of oasis points
-     * @param oasisQuaternions List of oasis quaternions
-     * @return Number of AR markers found
-     */
-    private int scanOasisArea(int areaIdx, List<Point> oasisPoints, List<Quaternion> oasisQuaternions) {
-        int arFound = 0;
-        for (int i = 0; i < OASIS_ORIENTATION_COUNT; i++) {
-            Mat image = captureImageAt(oasisPoints.get(areaIdx), oasisQuaternions.get(i));
-            //More robust null check for image
-            if (image == null) {
-                Log.w(TAG, "Captured image is empty; skipping orientation " + i);
-                continue;
-            }
-            saveOasisImage(areaIdx, i, image);
-            if (ArDetectionUtils.detectARMarker(image)) {
-                arFound++;
-            }
-        }
-        return arFound;
-    }
-
-    /**
-     * Moves to a given point and orientation, then captures an image.
-     * @param point Target point
-     * @param quaternion Target orientation
-     * @return Captured image or null
-     */
-    private Mat captureImageAt(Point point, Quaternion quaternion) {
-        api.moveTo(point, quaternion, false);
-        Mat image = api.getMatNavCam();
-        if (image == null) {
-            Log.i(TAG, "image was null; cannot connect camera");
-        }
-        return image;
-    }
-
-    /**
-     * Saves the captured image for a specific oasis area and orientation.
-     */
-    private void saveOasisImage(int areaIdx, int orientationIdx, Mat image) {
-        String fileName = String.format("OasisArea%d_%d.png", areaIdx, orientationIdx);
-        api.saveMatImage(image, fileName);
     }
 
     /**
