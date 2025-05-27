@@ -11,6 +11,8 @@ import android.util.Log;
 
 import jp.jaxa.iss.kibo.rpc.api.KiboRpcService;
 import jp.jaxa.iss.kibo.rpc.sampleapk.utils.ImageUtils;
+import jp.jaxa.iss.kibo.rpc.sampleapk.vision.ArMarkerDetector;
+import jp.jaxa.iss.kibo.rpc.sampleapk.vision.TemplateMatcher;
 
 import gov.nasa.arc.astrobee.types.Point;
 import gov.nasa.arc.astrobee.types.Quaternion;
@@ -112,33 +114,21 @@ public class YourService extends KiboRpcService {
                     return;
                 }
 
-
                 //Save image ถ่ายรูแฮั่นล่ะแชะๆ
                 String fileName = String.format("OasisArea%d_%d.png", num, i);
                 api.saveMatImage(image, fileName);
 
                 //===========AR section=========
                 //detect AR
-                Dictionary dictionary = Aruco.getPredefinedDictionary(Aruco.DICT_5X5_250);
-                List<Mat> corners = new ArrayList<>();
-                Mat markerIds = new Mat();
-                Aruco.detectMarkers(image, dictionary, corners, markerIds);
-
-                // //Get corner information
-                // for (Mat corner : corners) {
-                //     //Process the corner to determine the rotaion vector and translation vector
-//                ค่อยมาใส่โค้ดแปลงcornnersทีหลัง
-                // }
+                List<Mat> corners = ArMarkerDetector.detectMarkers(image, Aruco.DICT_5X5_250);
 
                 //check AR
                 if (corners.isEmpty()) {
                     Log.w(TAG, "Cannot detect AR");
                     continue;
-                    //corner is list of Ar tag information naja jubjub
                 } else {
                     Log.i(TAG, "Here AR");
                     arCounter++;
-//                    break;
                 }
             }
 
@@ -171,76 +161,16 @@ public class YourService extends KiboRpcService {
                     Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
                     Mat mat = new Mat();
                     Utils.bitmapToMat(bitmap, mat);
-
-                    //convert to gray scale
                     Imgproc.cvtColor(mat, mat, Imgproc.COLOR_BGR2GRAY);
-
-                    //assign to an array of template
                     templates[i] = mat;
                     inputStream.close();
-
-
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
 
             //Number of matches for each template
-            int templateMatchCnt[] = new int[templates.length];
-            //get num of template matches
-            for (int tempNum = 0; tempNum < templates.length; tempNum++) {
-                int matchCnt = 0;
-
-                List<org.opencv.core.Point> matches = new ArrayList<>();
-
-                //loding template image target
-                Mat template = templates[tempNum].clone();
-                Mat targetImg = undistortImg.clone();
-
-                //pattern matching =>px
-                int widthMin = 20;
-                int widthMax = 100;
-                int changeWidth = 5;
-                int changeAngle = 45;
-
-                for (int size = widthMin; size < widthMax; size += changeWidth) {
-                    for (int angle = 0; angle < 360; angle += changeAngle) {
-                        Mat resizedTemp = ImageUtils.resizeImg(template, size);
-                        Mat rotResizedTemp = ImageUtils.rotImg(resizedTemp, angle);
-
-                        Mat result = new Mat();
-                        Imgproc.matchTemplate(targetImg, rotResizedTemp, result, Imgproc.TM_CCOEFF_NORMED);
-
-                        //get similar by threshold
-                        double threshold = 0.7;
-                        Core.MinMaxLocResult mmlr = Core.minMaxLoc(result);
-                        double maxVal = mmlr.maxVal;
-                        if (maxVal >= threshold) {
-                            Mat thresholdedResult = new Mat();
-                            Imgproc.threshold(result, thresholdedResult, threshold, 1.0, Imgproc.THRESH_TOZERO);
-
-                            //Get location
-                            for (int y = 0; y < thresholdedResult.rows(); y++) {
-                                for (int x = 0; x < thresholdedResult.cols(); x++) {
-                                    if (thresholdedResult.get(y, x)[0] > 0) {
-//                                    matchCnt++;
-                                        matches.add(new org.opencv.core.Point(x, y));
-                                        Log.i(TAG, "matches somthing IDK");
-//                                    Log.i(TAG, String.valueOf(filteredMatches.size()));
-
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                List<org.opencv.core.Point> filteredMatches = ImageUtils.removeDuplicates(matches);
-                matchCnt += filteredMatches.size();
-
-                templateMatchCnt[tempNum] = matchCnt;
-
-            }
+            int[] templateMatchCnt = TemplateMatcher.matchTemplates(undistortImg, templates);
 
             //When u recognize landmark items let's type num
             int mostMatchTemplateNum = ImageUtils.getMaxIndex(templateMatchCnt);
