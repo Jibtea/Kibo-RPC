@@ -10,7 +10,7 @@ import jp.jaxa.iss.kibo.rpc.sampleapk.vision.TemplateMatcher;
 import jp.jaxa.iss.kibo.rpc.sampleapk.oasis.OasisUtils;
 import jp.jaxa.iss.kibo.rpc.sampleapk.ar.ArDetectionUtils;
 import jp.jaxa.iss.kibo.rpc.sampleapk.astronaut.AstronautUtils;
-import jp.jaxa.iss.kibo.rpc.sampleapk.util.AreaRecognitionUtils;
+import jp.jaxa.iss.kibo.rpc.sampleapk.utils.AreaRecognitionUtils;
 
 import gov.nasa.arc.astrobee.types.Point;
 import gov.nasa.arc.astrobee.types.Quaternion;

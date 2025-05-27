@@ -1,4 +1,4 @@
-package jp.jaxa.iss.kibo.rpc.sampleapk.util;
+package jp.jaxa.iss.kibo.rpc.sampleapk.utils;
 
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
