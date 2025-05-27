@@ -64,153 +64,114 @@ public class YourService extends KiboRpcService {
 
     @Override
     protected void runPlan1() {
-
-        //plz use Exception Handling ( try catch )for safetycode
         Log.i(TAG, "startMissionTest");
-
-        // The mission starts.
         api.startMission();
-
-        //========Move to a point program========
-//        Point point = new Point(10.9d, -9.92284d, 5.195d);
-//        Quaternion quaternion = new Quaternion(0f, 0f, -0.707f, 0.707f);
-//        api.moveTo(point, quaternion, false);
-
-        //oasis info put into List
-        List<Point> oasispoint = new ArrayList<Point>();
-        List<Quaternion> oasisQuaternion = new ArrayList<Quaternion>();
-        //oasis1
-        oasispoint.add(new Point(10.925d, -9.85d, 4.695d));
-        oasisQuaternion.add(new Quaternion(0f, 0f, -0.707f, 0.707f));
-        //oasis2
-        oasispoint.add(new Point(11.175d, -8.975d, 5.195d));
-        oasisQuaternion.add(new Quaternion(0.707f, 0f, 0.707f, 0.707f));
-        //oasis3
-        oasispoint.add(new Point(10.7d, -7.925d, 5.195d));
-        oasisQuaternion.add(new Quaternion(0f, -0.707f, 0.707f, -0.707f));
-        //oasis4
-        oasispoint.add(new Point(11.175d, -6.875d, 4.685d));
-        oasisQuaternion.add(new Quaternion(0.707f, 0.707f, -0.707f, -0.707f));
-
-
-        //=========== i will create it to some func?============
-        int num = 0;
-        Mat image = new Mat();
+        List<Point> oasisPoints = getOasisPoints();
+        List<Quaternion> oasisQuaternions = getOasisQuaternions();
         int arCounter = 0;
-
-        while (num < 4) {
-            //move to every oasis until find every area
-            // api.moveTo(oasispoint.get(num), oasisQuaternion.get(num), false);
-
-            String numCount = String.format("Num_%d.png", num);
-            Log.i(TAG,numCount);
-            //============================360 camera checkkkk==================
-            for (int i = 0; i < 4; i++) {
-                // Get a camera image.
-                api.moveTo(oasispoint.get(num), oasisQuaternion.get(i), false);
-                image = api.getMatNavCam();
-                if (image == null) {
-                    Log.i(TAG, "image was null cannot connect camera maybe? not sure");
-                    return;
-                }
-
-                //Save image ถ่ายรูแฮั่นล่ะแชะๆ
-                String fileName = String.format("OasisArea%d_%d.png", num, i);
-                api.saveMatImage(image, fileName);
-
-                //===========AR section=========
-                //detect AR
-                List<Mat> corners = ArMarkerDetector.detectMarkers(image, Aruco.DICT_5X5_250);
-
-                //check AR
-                if (corners.isEmpty()) {
-                    Log.w(TAG, "Cannot detect AR");
-                    continue;
-                } else {
-                    Log.i(TAG, "Here AR");
-                    arCounter++;
-                }
-            }
-
-            /* ******************************************************************************** */
-            /* Write your code to recognize the type and number of landmark items in each area! */
-            /* If there is a treasure item, remember it.                                        */
-            /* ******************************************************************************** */
-
-
-            ///=======================correcting image distortion===================
-            //Get camera matrix
-            Mat cameraMatrix = new Mat(3, 3, CvType.CV_64F);
-            cameraMatrix.put(0, 0, api.getNavCamIntrinsics()[0]);
-            //get lens distance parameter
-            Mat cameraCoefficients = new Mat(1, 5, CvType.CV_64F);
-            cameraCoefficients.put(0, 0, api.getNavCamIntrinsics()[1]);
-            cameraCoefficients.convertTo(cameraCoefficients, CvType.CV_64F);
-
-            //undistort image
-            Mat undistortImg = new Mat();
-            Calib3d.undistort(image, undistortImg, cameraMatrix, cameraCoefficients);
-
-
-            //======pattern matching=======
-            //load template image
-            Mat[] templates = new Mat[TEMPLATE_FILE_NAME.length];
-            for (int i = 0; i < TEMPLATE_FILE_NAME.length; i++) {
-                try {
-                    InputStream inputStream = getAssets().open(TEMPLATE_FILE_NAME[i]);
-                    Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-                    Mat mat = new Mat();
-                    Utils.bitmapToMat(bitmap, mat);
-                    Imgproc.cvtColor(mat, mat, Imgproc.COLOR_BGR2GRAY);
-                    templates[i] = mat;
-                    inputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            //Number of matches for each template
-            int[] templateMatchCnt = TemplateMatcher.matchTemplates(undistortImg, templates);
-
-            //When u recognize landmark items let's type num
-            int mostMatchTemplateNum = ImageUtils.getMaxIndex(templateMatchCnt);
-            api.setAreaInfo(num, TEMPLATE_NAME[mostMatchTemplateNum], templateMatchCnt[mostMatchTemplateNum]);
-
-            // When you recognize landmark items, let’s set the type and number.
-            api.setAreaInfo(num, "item_name", num);
-
-            num++;
+        for (int areaIdx = 0; areaIdx < 4; areaIdx++) {
+            arCounter += scanOasisArea(areaIdx, oasisPoints, oasisQuaternions);
+            processAreaRecognition(areaIdx);
         }
+        moveToAstronautAndReport();
+        recognizeAndReportTargetItem();
+        moveToTargetItemAndSnapshot();
+    }
 
+    private List<Point> getOasisPoints() {
+        List<Point> points = new ArrayList<>();
+        points.add(new Point(10.925d, -9.85d, 4.695d));
+        points.add(new Point(11.175d, -8.975d, 5.195d));
+        points.add(new Point(10.7d, -7.925d, 5.195d));
+        points.add(new Point(11.175d, -6.875d, 4.685d));
+        return points;
+    }
 
+    private List<Quaternion> getOasisQuaternions() {
+        List<Quaternion> quaternions = new ArrayList<>();
+        quaternions.add(new Quaternion(0f, 0f, -0.707f, 0.707f));
+        quaternions.add(new Quaternion(0.707f, 0f, 0.707f, 0.707f));
+        quaternions.add(new Quaternion(0f, -0.707f, 0.707f, -0.707f));
+        quaternions.add(new Quaternion(0.707f, 0.707f, -0.707f, -0.707f));
+        return quaternions;
+    }
 
+    private int scanOasisArea(int areaIdx, List<Point> oasisPoints, List<Quaternion> oasisQuaternions) {
+        int arFound = 0;
+        for (int i = 0; i < 4; i++) {
+            api.moveTo(oasisPoints.get(areaIdx), oasisQuaternions.get(i), false);
+            Mat image = api.getMatNavCam();
+            if (image == null) {
+                Log.i(TAG, "image was null cannot connect camera maybe? not sure");
+                return arFound;
+            }
+            String fileName = String.format("OasisArea%d_%d.png", areaIdx, i);
+            api.saveMatImage(image, fileName);
+            List<Mat> corners = ArMarkerDetector.detectMarkers(image, Aruco.DICT_5X5_250);
+            if (corners.isEmpty()) {
+                Log.w(TAG, "Cannot detect AR");
+            } else {
+                Log.i(TAG, "Here AR");
+                arFound++;
+            }
+        }
+        return arFound;
+    }
 
-        /* **************************************************** */
-        /* Let's move to each area and recognize the items. */
-        /* **************************************************** */
+    private void processAreaRecognition(int areaIdx) {
+        Mat image = api.getMatNavCam();
+        if (image == null) return;
+        Mat undistortImg = undistortImage(image);
+        Mat[] templates = loadTemplates();
+        int[] templateMatchCnt = TemplateMatcher.matchTemplates(undistortImg, templates);
+        int mostMatchTemplateNum = ImageUtils.getMaxIndex(templateMatchCnt);
+        api.setAreaInfo(areaIdx, TEMPLATE_NAME[mostMatchTemplateNum], templateMatchCnt[mostMatchTemplateNum]);
+        // Optionally: api.setAreaInfo(areaIdx, "item_name", areaIdx);
+    }
 
+    private Mat undistortImage(Mat image) {
+        Mat cameraMatrix = new Mat(3, 3, CvType.CV_64F);
+        cameraMatrix.put(0, 0, api.getNavCamIntrinsics()[0]);
+        Mat cameraCoefficients = new Mat(1, 5, CvType.CV_64F);
+        cameraCoefficients.put(0, 0, api.getNavCamIntrinsics()[1]);
+        cameraCoefficients.convertTo(cameraCoefficients, CvType.CV_64F);
+        Mat undistortImg = new Mat();
+        Calib3d.undistort(image, undistortImg, cameraMatrix, cameraCoefficients);
+        return undistortImg;
+    }
 
-        //===========move to astronaut==================
-        // When you move to the front of the astronaut, report the rounding completion.
+    private Mat[] loadTemplates() {
+        Mat[] templates = new Mat[TEMPLATE_FILE_NAME.length];
+        for (int i = 0; i < TEMPLATE_FILE_NAME.length; i++) {
+            try {
+                InputStream inputStream = getAssets().open(TEMPLATE_FILE_NAME[i]);
+                Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                Mat mat = new Mat();
+                Utils.bitmapToMat(bitmap, mat);
+                Imgproc.cvtColor(mat, mat, Imgproc.COLOR_BGR2GRAY);
+                templates[i] = mat;
+                inputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return templates;
+    }
+
+    private void moveToAstronautAndReport() {
         Point point = new Point(11.143d, -6.7607d, 4.9654d);
         Quaternion quaternion = new Quaternion(0f, 0f, 0.707f, 0.707f);
-//        point = new Point(11.143d, -6.7607d, 4.9654d);
-//        quaternion = new Quaternion(0f, 0f, 0.707f, 0.707f);
         api.moveTo(point, quaternion, false);
         api.reportRoundingCompletion();
+    }
 
-        /* ********************************************************** */
-        /* Write your code to recognize which target item the astronaut has. */
-        /* ********************************************************** */
-
-        // Let's notify the astronaut when you recognize it.
+    private void recognizeAndReportTargetItem() {
+        // TODO: Implement target item recognition logic here
         api.notifyRecognitionItem();
+    }
 
-        /* ******************************************************************************************************* */
-        /* Write your code to move Astrobee to the location of the target item (what the astronaut is looking for) */
-        /* ******************************************************************************************************* */
-
-        // Take a snapshot of the target item.
+    private void moveToTargetItemAndSnapshot() {
+        // TODO: Implement logic to move to the target item
         api.takeTargetItemSnapshot();
     }
 
