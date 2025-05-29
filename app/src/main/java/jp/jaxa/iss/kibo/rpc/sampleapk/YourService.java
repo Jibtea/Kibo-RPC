@@ -8,7 +8,6 @@ import jp.jaxa.iss.kibo.rpc.api.KiboRpcService;
 import jp.jaxa.iss.kibo.rpc.sampleapk.utils.ImageUtils;
 import jp.jaxa.iss.kibo.rpc.sampleapk.vision.TemplateMatcher;
 import jp.jaxa.iss.kibo.rpc.sampleapk.oasis.OasisUtils;
-import jp.jaxa.iss.kibo.rpc.sampleapk.ar.ArDetectionUtils;
 import jp.jaxa.iss.kibo.rpc.sampleapk.astronaut.AstronautUtils;
 import jp.jaxa.iss.kibo.rpc.sampleapk.utils.AreaRecognitionUtils;
 
