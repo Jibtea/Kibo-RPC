@@ -3,7 +3,7 @@ package jp.jaxa.iss.kibo.rpc.sampleapk.oasis;
 import gov.nasa.arc.astrobee.types.Point;
 import gov.nasa.arc.astrobee.types.Quaternion;
 import jp.jaxa.iss.kibo.rpc.api.KiboRpcApi;
-import jp.jaxa.iss.kibo.rpc.sampleapk.ar.ArDetectionUtils;
+import jp.jaxa.iss.kibo.rpc.sampleapk.vision.ArMarkerDetector;
 import org.opencv.core.Mat;
 import android.util.Log;
 import java.util.ArrayList;
@@ -40,8 +40,11 @@ public class OasisUtils {
                 continue;
             }
             saveOasisImage(api, areaIdx, i, image);
-            if (ArDetectionUtils.detectARMarker(image)) {
+            if (ArMarkerDetector.hasMarkers(image, org.opencv.aruco.Aruco.DICT_5X5_250)) {
                 arFound++;
+                Log.i("OasisUtils", String.format("AR marker FOUND in area %d, orientation %d (point: %s, quaternion: %s)", areaIdx, i, oasisPoints.get(areaIdx).toString(), oasisQuaternions.get(i).toString()));
+            } else {
+                Log.i("OasisUtils", String.format("No AR marker found in area %d, orientation %d", areaIdx, i));
             }
         }
         return arFound;
