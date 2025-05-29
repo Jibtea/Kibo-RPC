@@ -39,8 +39,10 @@ public class OasisUtils {
                 Log.w("OasisUtils", "Captured image is empty; skipping orientation " + i);
                 continue;
             }
+            // Detect markers and draw bounding boxes in one step
+            ArMarkerDetector.DetectionResult result = ArMarkerDetector.detectAndDrawMarkers(image, org.opencv.aruco.Aruco.DICT_5X5_250);
             saveOasisImage(api, areaIdx, i, image);
-            if (ArMarkerDetector.hasMarkers(image, org.opencv.aruco.Aruco.DICT_5X5_250)) {
+            if (result.hasMarkers()) {
                 arFound++;
                 Log.i("OasisUtils", String.format("AR marker FOUND in area %d, orientation %d (point: %s, quaternion: %s)", areaIdx, i, oasisPoints.get(areaIdx).toString(), oasisQuaternions.get(i).toString()));
                 break; // Early exit: stop scanning more orientations for this area
