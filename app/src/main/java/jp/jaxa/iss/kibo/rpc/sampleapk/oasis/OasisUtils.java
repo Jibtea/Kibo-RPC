@@ -43,6 +43,7 @@ public class OasisUtils {
             if (ArMarkerDetector.hasMarkers(image, org.opencv.aruco.Aruco.DICT_5X5_250)) {
                 arFound++;
                 Log.i("OasisUtils", String.format("AR marker FOUND in area %d, orientation %d (point: %s, quaternion: %s)", areaIdx, i, oasisPoints.get(areaIdx).toString(), oasisQuaternions.get(i).toString()));
+                break; // Early exit: stop scanning more orientations for this area
             } else {
                 Log.i("OasisUtils", String.format("No AR marker found in area %d, orientation %d", areaIdx, i));
             }
@@ -54,7 +55,8 @@ public class OasisUtils {
         api.moveTo(point, quaternion, false);
         Mat image = api.getMatNavCam();
         if (image == null) {
-            Log.i("OasisUtils", "image was null; cannot connect camera");
+            Log.e("OasisUtils", String.format("Failed to capture image at point: %s, quaternion: %s. Image is null.", point, quaternion));
+            return null;
         }
         return image;
     }
