@@ -3,6 +3,7 @@ package jp.jaxa.iss.kibo.rpc.sampleapk.vision;
 import org.opencv.aruco.Aruco;
 import org.opencv.aruco.Dictionary;
 import org.opencv.core.Mat;
+import gov.nasa.arc.astrobee.types.Quaternion;
 import org.opencv.core.Scalar;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -81,33 +82,41 @@ public class ArMarkerDetector {
     }
 
     /**
-     * Extract camera matrix and distortion coefficients from NavCam intrinsics.
-     * @param intrinsics double[4][5] or double[4][N] as returned by api.getNavCamIntrinsics()
+     * Extract camera matrix and distortion coefficients from flat arrays.
+     * @param cameraMatrixArr double[9] camera matrix (row-major)
+     * @param distCoeffsArr double[5] distortion coefficients
      * @return array: [cameraMatrix, distCoeffs]
      */
-    public static Mat[] extractCameraIntrinsics(double[][] intrinsics) {
+    public static Mat[] extractCameraIntrinsics(double[] cameraMatrixArr, double[] distCoeffsArr) {
+        if (cameraMatrixArr == null || cameraMatrixArr.length != 9)
+            throw new IllegalArgumentException("Camera matrix array must have 9 elements (3x3)");
+        if (distCoeffsArr == null || distCoeffsArr.length != 5)
+            throw new IllegalArgumentException("Distortion coefficients array must have 5 elements");
         Mat cameraMatrix = new Mat(3, 3, org.opencv.core.CvType.CV_64F);
         Mat distCoeffs = new Mat(1, 5, org.opencv.core.CvType.CV_64F);
-        for (int row = 0; row < 3; row++)
-            for (int col = 0; col < 3; col++)
-                cameraMatrix.put(row, col, intrinsics[row][col]);
-        for (int k = 0; k < 5; k++)
-            distCoeffs.put(0, k, intrinsics[3][k]);
+        for (int i = 0; i < 9; i++) {
+            cameraMatrix.put(i / 3, i % 3, cameraMatrixArr[i]);
+        }
+        for (int k = 0; k < 5; k++) {
+            distCoeffs.put(0, k, distCoeffsArr[k]);
+        }
         return new Mat[] { cameraMatrix, distCoeffs };
     }
+
+
 
     /**
      * Estimate pose and log tvec and angle for each detected marker.
      */
     public static void logMarkerPose(DetectionResult result, float markerLength, Mat cameraMatrix, Mat distCoeffs, Quaternion orientation) {
-        List<Mat> rvecs = new ArrayList<>();
-        List<Mat> tvecs = new ArrayList<>();
-        org.opencv.aruco.Aruco.estimatePoseSingleMarkers(result.corners, markerLength, cameraMatrix, distCoeffs, rvecs, tvecs);
+        Mat rvecsMat = new Mat();
+        Mat tvecsMat = new Mat();
+        org.opencv.aruco.Aruco.estimatePoseSingleMarkers(result.corners, markerLength, cameraMatrix, distCoeffs, rvecsMat, tvecsMat);
         for (int j = 0; j < result.markerIds.rows(); j++) {
-            Mat tvec = tvecs.get(j);
-            double dx = tvec.get(0,0)[0];
-            double dy = tvec.get(0,0)[1];
-            double dz = tvec.get(0,0)[2];
+            double[] tvec = tvecsMat.get(j, 0);
+            double dx = tvec[0];
+            double dy = tvec[1];
+            double dz = tvec[2];
             double distance = Math.sqrt(dx*dx + dy*dy + dz*dz);
             double angle = Math.toDegrees(Math.acos(dz / distance));
             android.util.Log.i("ArMarkerDetector", String.format(

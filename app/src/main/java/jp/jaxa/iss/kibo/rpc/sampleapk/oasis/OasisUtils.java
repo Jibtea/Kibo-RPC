@@ -45,9 +45,15 @@ public class OasisUtils {
             if (result.hasMarkers()) {
                 arFound++;
                 // Modular: extract intrinsics and log pose
-                float markerLength = 0.05f; // Set to your marker's real-world size in meters
-                Mat[] mats = ArMarkerDetector.extractCameraIntrinsics(api.getNavCamIntrinsics());
-                ArMarkerDetector.logMarkerPose(result, markerLength, mats[0], mats[1], oasisQuaternions.get(i));
+                // Use the correct marker length for pose estimation
+                float markerLength = 0.0575f; // 5.75 cm in meters
+                double[][] navCamIntrinsics = api.getNavCamIntrinsics(); // or similar, must be double[9]
+                Mat[] mats = ArMarkerDetector.extractCameraIntrinsics(navCamIntrinsics[0], navCamIntrinsics[1]);
+                try {
+                    ArMarkerDetector.logMarkerPose(result, markerLength, mats[0], mats[1], oasisQuaternions.get(i));
+                } catch (Exception e) {
+                    Log.e("OasisUtils", "Error in logMarkerPose: " + e.getMessage(), e);
+                }
                 Log.i("OasisUtils", String.format("AR marker FOUND in area %d, orientation %d (point: %s, quaternion: %s)", areaIdx, i, oasisPoints.get(areaIdx).toString(), oasisQuaternions.get(i).toString()));
                 break; // Early exit: stop scanning more orientations for this area
             } else {
