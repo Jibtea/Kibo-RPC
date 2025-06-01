@@ -79,4 +79,41 @@ public class ArMarkerDetector {
         drawBoundingBoxes(image, result, new Scalar(0, 255, 0));
         return result;
     }
+
+    /**
+     * Extract camera matrix and distortion coefficients from NavCam intrinsics.
+     * @param intrinsics double[4][5] or double[4][N] as returned by api.getNavCamIntrinsics()
+     * @return array: [cameraMatrix, distCoeffs]
+     */
+    public static Mat[] extractCameraIntrinsics(double[][] intrinsics) {
+        Mat cameraMatrix = new Mat(3, 3, org.opencv.core.CvType.CV_64F);
+        Mat distCoeffs = new Mat(1, 5, org.opencv.core.CvType.CV_64F);
+        for (int row = 0; row < 3; row++)
+            for (int col = 0; col < 3; col++)
+                cameraMatrix.put(row, col, intrinsics[row][col]);
+        for (int k = 0; k < 5; k++)
+            distCoeffs.put(0, k, intrinsics[3][k]);
+        return new Mat[] { cameraMatrix, distCoeffs };
+    }
+
+    /**
+     * Estimate pose and log tvec and angle for each detected marker.
+     */
+    public static void logMarkerPose(DetectionResult result, float markerLength, Mat cameraMatrix, Mat distCoeffs, Quaternion orientation) {
+        List<Mat> rvecs = new ArrayList<>();
+        List<Mat> tvecs = new ArrayList<>();
+        org.opencv.aruco.Aruco.estimatePoseSingleMarkers(result.corners, markerLength, cameraMatrix, distCoeffs, rvecs, tvecs);
+        for (int j = 0; j < result.markerIds.rows(); j++) {
+            Mat tvec = tvecs.get(j);
+            double dx = tvec.get(0,0)[0];
+            double dy = tvec.get(0,0)[1];
+            double dz = tvec.get(0,0)[2];
+            double distance = Math.sqrt(dx*dx + dy*dy + dz*dz);
+            double angle = Math.toDegrees(Math.acos(dz / distance));
+            android.util.Log.i("ArMarkerDetector", String.format(
+                "AR marker ID: %d, tvec: [%.3f, %.3f, %.3f], distance: %.3f m, angle: %.2f deg, orientation: %s",
+                (int)result.markerIds.get(j,0)[0], dx, dy, dz, distance, angle, orientation.toString()
+            ));
+        }
+    }
 }

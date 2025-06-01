@@ -36,7 +36,7 @@ public class OasisUtils {
         for (int i = 0; i < oasisQuaternions.size(); i++) {
             Mat image = captureImageAt(api, oasisPoints.get(areaIdx), oasisQuaternions.get(i));
             if (image == null) {
-                Log.w("OasisUtils", "Captured image is empty; skipping orientation " + i);
+                Log.w("OasisUtils", "Captured image is empty; skipping orientxation " + i);
                 continue;
             }
             // Detect markers and draw bounding boxes in one step
@@ -44,6 +44,10 @@ public class OasisUtils {
             saveOasisImage(api, areaIdx, i, image);
             if (result.hasMarkers()) {
                 arFound++;
+                // Modular: extract intrinsics and log pose
+                float markerLength = 0.05f; // Set to your marker's real-world size in meters
+                Mat[] mats = ArMarkerDetector.extractCameraIntrinsics(api.getNavCamIntrinsics());
+                ArMarkerDetector.logMarkerPose(result, markerLength, mats[0], mats[1], oasisQuaternions.get(i));
                 Log.i("OasisUtils", String.format("AR marker FOUND in area %d, orientation %d (point: %s, quaternion: %s)", areaIdx, i, oasisPoints.get(areaIdx).toString(), oasisQuaternions.get(i).toString()));
                 break; // Early exit: stop scanning more orientations for this area
             } else {
