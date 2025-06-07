@@ -56,7 +56,7 @@ public class ArMarkerDetector {
         Aruco.detectMarkers(image, dictionary, corners, markerIds);
         return new DetectionResult(corners, markerIds);
     }
-
+    
     /**
      * Draw bounding boxes for detected markers on the image.
      * @param image Image to draw on (modified in place)
