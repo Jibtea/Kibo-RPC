@@ -77,7 +77,7 @@ public class ArMarkerDetector {
      */
     public static DetectionResult detectAndDrawMarkers(Mat image, int dictionaryId) {
         DetectionResult result = detectMarkers(image, dictionaryId);
-        drawBoundingBoxes(image, result, new Scalar(0, 255, 0));
+        //drawBoundingBoxes(image, result, new Scalar(0, 255, 0));
         return result;
     }
 

@@ -128,9 +128,10 @@ public class OasisUtils {
      * @param oasisPoints List of area points
      * @param oasisQuaternions List of orientations
      * @param detectedItemsMap Map to store DetectedItemInfo by AR marker ID
+     * @param visitedArIds Set of visited AR marker IDs (should be shared across all scans)
      * @return number of AR markers found
      */
-    public static int scanOasisArea(KiboRpcApi api, int areaIdx, List<Point> oasisPoints, List<Quaternion> oasisQuaternions, Map<Integer, DetectedItemInfo> detectedItemsMap) {
+    public static int scanOasisArea(KiboRpcApi api, int areaIdx, List<Point> oasisPoints, List<Quaternion> oasisQuaternions, Map<Integer, DetectedItemInfo> detectedItemsMap, java.util.Set<Integer> visitedArIds) {
         int totalNewMarkers = 0;
         for (int i = 0; i < oasisQuaternions.size(); i++) {
             Mat image = captureImageAt(api, oasisPoints.get(areaIdx), oasisQuaternions.get(i));
@@ -140,9 +141,47 @@ public class OasisUtils {
             }
             int newMarkers = detectAndStoreAllArMarkers(image, areaIdx, i, oasisPoints.get(areaIdx), oasisQuaternions.get(i), api, detectedItemsMap);
             totalNewMarkers += newMarkers;
+            // Visit all unvisited AR markers after each detection
+            visitAllUnvisitedArMarkers(api, detectedItemsMap, visitedArIds);
             if (newMarkers > 0) break; // Early exit after first detection(s) in this area
         }
         return totalNewMarkers;
+    }
+
+    /**
+     * Check if an AR marker ID has been visited.
+     * @param arId AR marker ID
+     * @param visitedArIds Set of visited AR marker IDs
+     * @return true if visited, false otherwise
+     */
+    public static boolean isArVisited(int arId, java.util.Set<Integer> visitedArIds) {
+        return visitedArIds.contains(arId);
+    }
+
+    /**
+     * Visit each unvisited AR marker in the detectedItemsMap.
+     * Moves to each AR marker's position and orientation, captures an image, and marks it as visited.
+     * @param api KiboRpcApi instance
+     * @param detectedItemsMap Map of AR marker ID to DetectedItemInfo
+     * @param visitedArIds Set of visited AR marker IDs (will be updated)
+     */
+    public static void visitAllUnvisitedArMarkers(
+            KiboRpcApi api,
+            Map<Integer, DetectedItemInfo> detectedItemsMap,
+            java.util.Set<Integer> visitedArIds) {
+        final double DESIRED_DISTANCE = 0.7; // meters (adjust as needed)
+        for (DetectedItemInfo info : detectedItemsMap.values()) {
+            if (isArVisited(info.arId, visitedArIds)) continue;
+            // Move to AR marker's position and orientation
+            api.moveTo(info.point, info.orientation, false);
+            // Move closer to marker while keeping angle < 30 degrees and fixed distance
+            boolean moved = moveCloserToMarker(api, info.tvec, info.orientation, DESIRED_DISTANCE);
+            // Capture image at the new position (after fine approach)
+            Mat image = captureImageAt(api, info.point, info.orientation);
+            // Mark as visited
+            visitedArIds.add(info.arId);
+            // (Optional) Process the image or perform additional logic here
+        }
     }
 
     // The following methods require access to the api instance, so should be called from YourService with api passed in.
