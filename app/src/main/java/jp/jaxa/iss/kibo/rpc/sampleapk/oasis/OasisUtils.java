@@ -24,10 +24,73 @@ public class OasisUtils {
 
     public static List<Quaternion> getOasisQuaternions() {
         List<Quaternion> quaternions = new ArrayList<>();
-        quaternions.add(new Quaternion(0f, 0f, -0.707f, 0.707f));
-        quaternions.add(new Quaternion(0.707f, 0f, 0.707f, 0.707f));
-        quaternions.add(new Quaternion(0f, -0.707f, 0.707f, -0.707f));
-        quaternions.add(new Quaternion(0.707f, 0.707f, -0.707f, -0.707f));
+                                         //x y z w
+        quaternions.add(new Quaternion(1f, 0f, 0, 0f));
+        //Pitch = 0 องศา
+        quaternions.add(new Quaternion(0, 0, 0.3420, 0.9397));
+        quaternions.add(new Quaternion(0, 0, 0.3420, 0.9397));
+        quaternions.add(new Quaternion(0, 0, 0.3420, 0.9397));
+        quaternions.add(new Quaternion(0, 0, 0.3420, 0.9397));
+        quaternions.add(new Quaternion(0, 0, 0.3420, 0.9397));
+        quaternions.add(new Quaternion(0, 0, 0.3420, 0.9397));
+        quaternions.add(new Quaternion(0, 0, 0.3420, 0.9397));
+        quaternions.add(new Quaternion(0, 0, 0.3420, 0.9397));
+
+        //Pitch = +40 องศา
+        quaternions.add(new Quaternion(0, 0.3420, 0, 0.9397));
+
+        quaternions.add(new Quaternion(0, 0, 0.3420, 0.9397));
+        quaternions.add(new Quaternion(0, 0, 0.3420, 0.9397));
+        quaternions.add(new Quaternion(0, 0, 0.3420, 0.9397));
+        quaternions.add(new Quaternion(0, 0, 0.3420, 0.9397));
+        quaternions.add(new Quaternion(0, 0, 0.3420, 0.9397));
+        quaternions.add(new Quaternion(0, 0, 0.3420, 0.9397));
+        quaternions.add(new Quaternion(0, 0, 0.3420, 0.9397));
+        quaternions.add(new Quaternion(0, 0, 0.3420, 0.9397));
+
+        // Pitch = +80 องศา
+        quaternions.add(new Quaternion(0, 0.3420, 0, 0.9397));
+
+        quaternions.add(new Quaternion(0, 0, 0.3420, 0.9397));
+        quaternions.add(new Quaternion(0, 0, 0.3420, 0.9397));
+        quaternions.add(new Quaternion(0, 0, 0.3420, 0.9397));
+        quaternions.add(new Quaternion(0, 0, 0.3420, 0.9397));
+        quaternions.add(new Quaternion(0, 0, 0.3420, 0.9397));
+        quaternions.add(new Quaternion(0, 0, 0.3420, 0.9397));
+        quaternions.add(new Quaternion(0, 0, 0.3420, 0.9397));
+        quaternions.add(new Quaternion(0, 0, 0.3420, 0.9397));
+
+        // จาก +80 ลงมา -40 ในครั้งเดียว
+        quaternions.add(new Quaternion(0, -0.8660f, 0, 0.5f));
+        
+        // --- ตอนนี้กล้องอยู่ที่ Pitch = -40 องศา เริ่มสแกนแนวนอนแถวนี้ ---
+        quaternions.add(new Quaternion(0, 0, 0.3420f, 0.9397f));
+        quaternions.add(new Quaternion(0, 0, 0.3420f, 0.9397f));
+        quaternions.add(new Quaternion(0, 0, 0.3420f, 0.9397f));
+        quaternions.add(new Quaternion(0, 0, 0.3420f, 0.9397f));
+        quaternions.add(new Quaternion(0, 0, 0.3420f, 0.9397f));
+        quaternions.add(new Quaternion(0, 0, 0.3420f, 0.9397f));
+        quaternions.add(new Quaternion(0, 0, 0.3420f, 0.9397f));
+        quaternions.add(new Quaternion(0, 0, 0.3420f, 0.9397f));
+
+        // --- เพื่อไปแถวสุดท้าย (Pitch = -80) ให้ก้มลงอีกครั้ง ---
+        quaternions.add(new Quaternion(0, -0.3420f, 0, 0.9397f));
+
+        // --- ตอนนี้กล้องอยู่ที่ Pitch = -80 องศา เริ่มสแกนแนวนอนแถวสุดท้าย ---
+        quaternions.add(new Quaternion(0, 0, 0.3420f, 0.9397f));
+        quaternions.add(new Quaternion(0, 0, 0.3420f, 0.9397f));
+        quaternions.add(new Quaternion(0, 0, 0.3420f, 0.9397f));
+        quaternions.add(new Quaternion(0, 0, 0.3420f, 0.9397f));
+        quaternions.add(new Quaternion(0, 0, 0.3420f, 0.9397f));
+        quaternions.add(new Quaternion(0, 0, 0.3420f, 0.9397f));
+        quaternions.add(new Quaternion(0, 0, 0.3420f, 0.9397f));
+        quaternions.add(new Quaternion(0, 0, 0.3420f, 0.9397f));
+
+
+        // quaternions.add(new Quaternion(0f, 0f, -0.707f, 0.707f));
+        // quaternions.add(new Quaternion(0.707f, 0f, 0.707f, 0.707f));
+        // quaternions.add(new Quaternion(0f, -0.707f, 0.707f, -0.707f));
+        // quaternions.add(new Quaternion(0.707f, 0.707f, -0.707f, -0.707f));
         return quaternions;
     }
 
