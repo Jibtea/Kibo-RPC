@@ -37,7 +37,7 @@ public class OasisUtils {
         quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
 
         //Pitch = +40 องศา
-        quaternions.add(new Quaternion(0, 0.3420, 0, 0.9397));
+        quaternions.add(new Quaternion(0f, 0.3420f, 0f, 0.9397f));
 
         quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
         quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
