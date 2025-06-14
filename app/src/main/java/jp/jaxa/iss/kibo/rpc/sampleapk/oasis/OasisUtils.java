@@ -159,6 +159,36 @@ public class OasisUtils {
     }
 
     /**
+     * Compute the AR marker's world position from the robot's pose and tvec (marker position in camera frame).
+     * @param robotPos Robot's world position (Point)
+     * @param robotQuat Robot's world orientation (Quaternion)
+     * @param tvec Marker position in camera frame (double[3])
+     * @return AR marker's world position (Point)
+     */
+    public static Point computeArMarkerWorldPosition(Point robotPos, Quaternion robotQuat, double[] tvec) {
+        // Convert quaternion to rotation matrix
+        double x = robotQuat.getX();
+        double y = robotQuat.getY();
+        double z = robotQuat.getZ();
+        double w = robotQuat.getW();
+        double[][] R = new double[3][3];
+        R[0][0] = 1 - 2 * y * y - 2 * z * z;
+        R[0][1] = 2 * x * y - 2 * z * w;
+        R[0][2] = 2 * x * z + 2 * y * w;
+        R[1][0] = 2 * x * y + 2 * z * w;
+        R[1][1] = 1 - 2 * x * x - 2 * z * z;
+        R[1][2] = 2 * y * z - 2 * x * w;
+        R[2][0] = 2 * x * z - 2 * y * w;
+        R[2][1] = 2 * y * z + 2 * x * w;
+        R[2][2] = 1 - 2 * x * x - 2 * y * y;
+        // Transform tvec from camera to world frame
+        double wx = robotPos.getX() + R[0][0]*tvec[0] + R[0][1]*tvec[1] + R[0][2]*tvec[2];
+        double wy = robotPos.getY() + R[1][0]*tvec[0] + R[1][1]*tvec[1] + R[1][2]*tvec[2];
+        double wz = robotPos.getZ() + R[2][0]*tvec[0] + R[2][1]*tvec[1] + R[2][2]*tvec[2];
+        return new Point(wx, wy, wz);
+    }
+
+    /**
      * Visit each unvisited AR marker in the detectedItemsMap.
      * Moves to each AR marker's position and orientation, captures an image, and marks it as visited.
      * @param api KiboRpcApi instance
@@ -172,12 +202,20 @@ public class OasisUtils {
         final double DESIRED_DISTANCE = 0.7; // meters (adjust as needed)
         for (DetectedItemInfo info : detectedItemsMap.values()) {
             if (isArVisited(info.arId, visitedArIds)) continue;
-            // Move to AR marker's position and orientation
-            api.moveTo(info.point, info.orientation, false);
-            // Move closer to marker while keeping angle < 30 degrees and fixed distance
-            boolean moved = moveCloserToMarker(api, info.tvec, info.orientation, DESIRED_DISTANCE);
-            // Capture image at the new position (after fine approach)
-            Mat image = captureImageAt(api, info.point, info.orientation);
+            // Compute AR marker world position
+            Point arWorldPos = computeArMarkerWorldPosition(info.point, info.orientation, info.tvec);
+            // Compute approach point (DESIRED_DISTANCE away from marker, along camera Z axis)
+            // For simplicity, approach along the same direction as the robot's orientation
+            double dx = info.point.getX() - arWorldPos.getX();
+            double dy = info.point.getY() - arWorldPos.getY();
+            double dz = info.point.getZ() - arWorldPos.getZ();
+            double dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+            double ax = arWorldPos.getX() + (dx/dist) * DESIRED_DISTANCE;
+            double ay = arWorldPos.getY() + (dy/dist) * DESIRED_DISTANCE;
+            double az = arWorldPos.getZ() + (dz/dist) * DESIRED_DISTANCE;
+            Point approachPoint = new Point(ax, ay, az);
+            // Move to approach point and orientation
+            captureImageAt(api, approachPoint, info.orientation);
             // Mark as visited
             visitedArIds.add(info.arId);
             // (Optional) Process the image or perform additional logic here
