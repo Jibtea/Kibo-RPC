@@ -9,6 +9,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.opencv.core.Point;
+import org.opencv.core.Point3;
+import org.opencv.core.MatOfPoint2f;
+import org.opencv.core.MatOfPoint3f;
+import org.opencv.calib3d.Calib3d;
+import org.opencv.imgproc.Imgproc;
 
 /**
  * Utility class for efficient AR marker detection and drawing using OpenCV ArUco.
@@ -123,6 +129,49 @@ public class ArMarkerDetector {
                 "AR marker ID: %d, tvec: [%.3f, %.3f, %.3f], distance: %.3f m, angle: %.2f deg, orientation: %s",
                 (int)result.markerIds.get(j,0)[0], dx, dy, dz, distance, angle, orientation.toString()
             ));
+        }
+    }
+
+    /**
+     * Draw the boundary of the paper using the AR marker as reference.
+     * Paper size: width=0.27m, height=0.15m. Marker is at top-right, inset 1.25cm from top and right.
+     * @param image The input image (will be drawn on)
+     * @param rvec The rotation vector from pose estimation
+     * @param tvec The translation vector from pose estimation
+     * @param cameraMatrix The camera intrinsic matrix
+     * @param distCoeffs The distortion coefficients
+     */
+    public static void drawPaperBoundary(Mat image, Mat rvec, Mat tvec, Mat cameraMatrix, Mat distCoeffs) {
+        double paperWidth = 0.27; // meters
+        double paperHeight = 0.15; // meters
+        double markerInset = 0.0375; // meters (3.75 cm)
+        // Marker is at top-right, inset from top and right
+        // Paper corners in marker coordinate system:
+        // (markerInset, markerInset, 0): marker center (top-right inside paper)
+        // Top-right: (markerInset, markerInset, 0)
+        // Top-left: (markerInset - paperWidth, markerInset, 0)
+        // Bottom-left: (markerInset - paperWidth, markerInset + paperHeight, 0)
+        // Bottom-right: (markerInset, markerInset + paperHeight, 0)
+        MatOfPoint3f paperWorldCorners = new MatOfPoint3f(
+            new Point3(- (paperWidth - markerInset), paperHeight - markerInset, 0), // bottom-left
+            new Point3(markerInset, paperHeight - markerInset, 0), // bottom-right
+            new Point3(markerInset, -markerInset, 0), // top-right
+            new Point3(- (paperWidth - markerInset), -markerInset, 0) // top-left
+        );
+        // Convert distCoeffs to MatOfDouble for projectPoints
+        org.opencv.core.MatOfDouble distCoeffsDouble = new org.opencv.core.MatOfDouble();
+        if (distCoeffs != null && distCoeffs.total() > 0) {
+            double[] distVals = new double[(int)distCoeffs.total()];
+            distCoeffs.get(0, 0, distVals);
+            distCoeffsDouble.fromArray(distVals);
+        }
+        // Project paper corners to image
+        MatOfPoint2f paperImageCorners = new MatOfPoint2f();
+        Calib3d.projectPoints(paperWorldCorners, rvec, tvec, cameraMatrix, distCoeffsDouble, paperImageCorners);
+        // Draw the boundary
+        Point[] pts = paperImageCorners.toArray();
+        for (int i = 0; i < 4; i++) {
+            Imgproc.line(image, pts[i], pts[(i+1)%4], new Scalar(0,0,255), 3);
         }
     }
 }
