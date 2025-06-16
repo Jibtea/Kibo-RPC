@@ -15,6 +15,7 @@ import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.MatOfPoint3f;
 import org.opencv.calib3d.Calib3d;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.core.MatOfPoint;
 
 /**
  * Utility class for efficient AR marker detection and drawing using OpenCV ArUco.
@@ -134,12 +135,13 @@ public class ArMarkerDetector {
     
     /**
      * Draw the boundary of the paper using the AR marker as reference with custom dimensions.
+     * Additionally, blur everything outside the detected paper boundary.
      */
     public static void drawPaperBoundary(Mat image, Mat rvec, Mat tvec, Mat cameraMatrix, Mat distCoeffs) {
-        double paperWidth = 0.33; // meters (28.35 cm)
-        double paperHeight = 0.25; // meters (18 cm)
+        double paperWidth = 0.35; // meters (28.35 cm)
+        double paperHeight = 0.27; // meters (18 cm)
         double markerInsetTop = 0.0675; // meters (6.75 cm from top)
-        double markerInsetRight = 0.051; // meters (5.1 cm from right)
+        double markerInsetRight = 0.071; // meters (5.1 cm from right)
         // Paper corners relative to marker center (0,0,0):
         // Top-left: left by (paperWidth - markerInsetRight), up by markerInsetTop
         // Top-right: right by markerInsetRight, up by markerInsetTop  
@@ -167,6 +169,29 @@ public class ArMarkerDetector {
         for (int i = 0; i < 4; i++) {
             Imgproc.line(image, pts[i], pts[(i+1)%4], new Scalar(0,0,255), 3);
         }
+
+        // --- Blur everything outside the paper boundary ---
+        // 1. Create mask for the paper area
+        Mat mask = Mat.zeros(image.size(), org.opencv.core.CvType.CV_8UC1);
+        MatOfPoint paperContour = new MatOfPoint(
+            new Point(pts[0].x, pts[0].y),
+            new Point(pts[1].x, pts[1].y),
+            new Point(pts[2].x, pts[2].y),
+            new Point(pts[3].x, pts[3].y)
+        );
+        List<MatOfPoint> contours = new ArrayList<>();
+        contours.add(paperContour);
+        Imgproc.fillPoly(mask, contours, new Scalar(255));
+
+        // 2. Blur the whole image
+        Mat blurred = new Mat();
+        Imgproc.blur(image, blurred, new org.opencv.core.Size(35, 35));
+
+        // 3. Copy the unblurred paper area back onto the blurred image
+        image.copyTo(blurred, mask);
+
+        // 4. Copy the result back to the original image
+        blurred.copyTo(image);
     }
     
 
