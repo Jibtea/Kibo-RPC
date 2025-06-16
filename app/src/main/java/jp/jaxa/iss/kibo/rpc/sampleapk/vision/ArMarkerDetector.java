@@ -131,33 +131,27 @@ public class ArMarkerDetector {
             ));
         }
     }
-
+    
     /**
-     * Draw the boundary of the paper using the AR marker as reference.
-     * Paper size: width=0.27m, height=0.15m. Marker is at top-right, inset 1.25cm from top and right.
-     * @param image The input image (will be drawn on)
-     * @param rvec The rotation vector from pose estimation
-     * @param tvec The translation vector from pose estimation
-     * @param cameraMatrix The camera intrinsic matrix
-     * @param distCoeffs The distortion coefficients
+     * Draw the boundary of the paper using the AR marker as reference with custom dimensions.
      */
     public static void drawPaperBoundary(Mat image, Mat rvec, Mat tvec, Mat cameraMatrix, Mat distCoeffs) {
-        double paperWidth = 0.27; // meters
-        double paperHeight = 0.15; // meters
-        double markerInset = 0.0375; // meters (3.75 cm)
-        // Marker is at top-right, inset from top and right
-        // Paper corners in marker coordinate system:
-        // (markerInset, markerInset, 0): marker center (top-right inside paper)
-        // Top-right: (markerInset, markerInset, 0)
-        // Top-left: (markerInset - paperWidth, markerInset, 0)
-        // Bottom-left: (markerInset - paperWidth, markerInset + paperHeight, 0)
-        // Bottom-right: (markerInset, markerInset + paperHeight, 0)
+        double paperWidth = 0.33; // meters (28.35 cm)
+        double paperHeight = 0.25; // meters (18 cm)
+        double markerInsetTop = 0.0675; // meters (6.75 cm from top)
+        double markerInsetRight = 0.051; // meters (5.1 cm from right)
+        // Paper corners relative to marker center (0,0,0):
+        // Top-left: left by (paperWidth - markerInsetRight), up by markerInsetTop
+        // Top-right: right by markerInsetRight, up by markerInsetTop  
+        // Bottom-left: left by (paperWidth - markerInsetRight), down by (paperHeight - markerInsetTop)
+        // Bottom-right: right by markerInsetRight, down by (paperHeight - markerInsetTop)
         MatOfPoint3f paperWorldCorners = new MatOfPoint3f(
-            new Point3(- (paperWidth - markerInset), paperHeight - markerInset, 0), // bottom-left
-            new Point3(markerInset, paperHeight - markerInset, 0), // bottom-right
-            new Point3(markerInset, -markerInset, 0), // top-right
-            new Point3(- (paperWidth - markerInset), -markerInset, 0) // top-left
+            new Point3(-(paperWidth - markerInsetRight), markerInsetTop, 0), // top-left
+            new Point3(markerInsetRight, markerInsetTop, 0), // top-right
+            new Point3(markerInsetRight, - (paperHeight - markerInsetTop), 0), // bottom-right
+            new Point3(-(paperWidth - markerInsetRight), - (paperHeight - markerInsetTop), 0) // bottom-left
         );
+
         // Convert distCoeffs to MatOfDouble for projectPoints
         org.opencv.core.MatOfDouble distCoeffsDouble = new org.opencv.core.MatOfDouble();
         if (distCoeffs != null && distCoeffs.total() > 0) {
@@ -174,4 +168,6 @@ public class ArMarkerDetector {
             Imgproc.line(image, pts[i], pts[(i+1)%4], new Scalar(0,0,255), 3);
         }
     }
+    
+
 }
