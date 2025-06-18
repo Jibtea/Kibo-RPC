@@ -26,10 +26,36 @@ public class OasisUtils {
         return points;
     }
 
-    public static List<Quaternion> getOasisQuaternions() {
+    public static List<Quaternion> getOasisQuaternions(int areaIdx) {
         List<Quaternion> quaternions = new ArrayList<>();
+        switch (areaIdx) {
+            case 1:
+                quaternions.add(new Quaternion(0.000000f, 0.500000f, 0.000000f, 0.866025f)); // Yaw: 0, Pitch: 60
+                quaternions.add(new Quaternion(0.000000f, -0.500000f, 0.000000f, 0.866025f)); // Yaw: 0, Pitch: -60
+                quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.382683f, 0.923880f)); // Yaw: 45, Pitch: 0
+                quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.382683f, -0.923880f)); // Yaw: 315, Pitch: 0
+                quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.923880f, -0.382683f)); // Yaw: 225, Pitch: 0
+                quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.923880f, 0.382683f)); // Yaw: 135, Pitch: 0
+                quaternions.add(new Quaternion(0.500000f, 0.000000f, 0.866025f, 0.000000f)); // Yaw: 180, Pitch: 60
+                quaternions.add(new Quaternion(-0.500000f, -0.000000f, 0.866025f, 0.000000f)); // Yaw: 180, Pitch: -60
+                break;
+            case 2:
+                quaternions.add(new Quaternion(0.000000f, 0.500000f, 0.000000f, 0.866025f)); // Yaw: 0, Pitch: 60
+                quaternions.add(new Quaternion(0.000000f, -0.500000f, 0.000000f, 0.866025f)); // Yaw: 0, Pitch: -60
+                quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.382683f, 0.923880f)); // Yaw: 45, Pitch: 0
+                quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.382683f, -0.923880f)); // Yaw: 315, Pitch: 0
+                quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.923880f, -0.382683f)); // Yaw: 225, Pitch: 0
+                quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.923880f, 0.382683f)); // Yaw: 135, Pitch: 0
+                quaternions.add(new Quaternion(0.500000f, 0.000000f, 0.866025f, 0.000000f)); // Yaw: 180, Pitch: 60
+                quaternions.add(new Quaternion(-0.500000f, -0.000000f, 0.866025f, 0.000000f)); // Yaw: 180, Pitch: -60
+                break;
+            
+            default:
+                break;
+        }
 
         // --- Pitch = 60 degrees ---
+        /* 
         quaternions.add(new Quaternion(0.000000f, 0.500000f, 0.000000f, 0.866025f)); // Yaw: 0, Pitch: 60
         quaternions.add(new Quaternion(0.500000f, 0.000000f, 0.866025f, 0.000000f)); // Yaw: 180, Pitch: 60
 
@@ -42,6 +68,7 @@ public class OasisUtils {
         // --- Pitch = -60 degrees ---
         quaternions.add(new Quaternion(0.000000f, -0.500000f, 0.000000f, 0.866025f)); // Yaw: 0, Pitch: -60
         quaternions.add(new Quaternion(-0.500000f, -0.000000f, 0.866025f, 0.000000f)); // Yaw: 180, Pitch: -60
+        */
         return quaternions;
     }
 
@@ -162,8 +189,8 @@ public class OasisUtils {
      */
     public static int scanOasisArea(KiboRpcApi api, int areaIdx, List<Point> oasisPoints, List<Quaternion> oasisQuaternions, Map<Integer, DetectedItemInfo> detectedItemsMap, java.util.Set<Integer> visitedArIds) {
         int totalNewMarkers = 0;
-        for (int i = 0; i < oasisQuaternions.size(); i++) {
-            Mat image = captureImageAt(api, oasisPoints.get(areaIdx), oasisQuaternions.get(i));
+        for (int i = 0; i < oasisQuaternions(areaIdx).size(); i++) {
+            Mat image = captureImageAt(api, oasisPoints.get(areaIdx), oasisQuaternions(areaIdx).get(i));
             if (image == null) {
                 Log.w("OasisUtils", "Captured image is empty; skipping orientation " + i);
                 continue;
@@ -172,7 +199,7 @@ public class OasisUtils {
             totalNewMarkers += newMarkers;
             // Visit all unvisited AR markers after each detection
             visitAllUnvisitedArMarkers(api, detectedItemsMap, visitedArIds);
-            if (newMarkers > 0) break; // Early exit after first detection(s) in this area
+            //if (newMarkers > 0) break; // Early exit after first detection(s) in this area
         }
         return totalNewMarkers;
     }
