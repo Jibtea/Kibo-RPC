@@ -48,7 +48,7 @@ public class YourService extends KiboRpcService {
         // Add a set to track visited AR marker IDs across all scans
         java.util.Set<Integer> visitedArIds = new java.util.HashSet<>();
         for (int areaIdx = 0; areaIdx < OASIS_AREA_COUNT; areaIdx++) {
-            arCounter += OasisUtils.scanOasisArea(api, areaIdx, oasisPoints, detectedItemsMap, visitedArIds);
+            arCounter += OasisUtils.scanOasisArea(api, areaIdx, oasisPoints, detectedItemsMap, visitedArIds, arCounter);
             if(arCounter == 4){
                 break;
             }

@@ -40,43 +40,35 @@ public class OasisUtils {
             quaternions.add(new Quaternion(-0.500000f, -0.000000f, 0.866025f, 0.000000f)); // Yaw: 180, Pitch: -60
          */
         switch (areaIdx) {
+            //back
             case 0:
                 quaternions.add(new Quaternion(0.000000f, -0.500000f, 0.000000f, 0.866025f)); // Yaw: 0, Pitch: -60
                 quaternions.add(new Quaternion(0.500000f, 0.000000f, 0.866025f, 0.000000f)); // Yaw: 180, Pitch: 60
                 quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.923880f, 0.382683f)); // Yaw: 135, Pitch: 0
                 quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.923880f, -0.382683f)); // Yaw: 225, Pitch: 0
                 break;
-
+            //around
             case 1:
                 quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.923880f, -0.382683f)); // Yaw: 225, Pitch: 0
                 quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.923880f, 0.382683f)); // Yaw: 135, Pitch: 0
-                quaternions.add(new Quaternion(0.500000f, 0.000000f, 0.866025f, 0.000000f)); // Yaw: 180, Pitch: 60
-                quaternions.add(new Quaternion(0.000000f, -0.500000f, 0.000000f, 0.866025f)); // Yaw: 0, Pitch: -60
-
-                quaternions.add(new Quaternion(0.000000f, 0.500000f, 0.000000f, 0.866025f)); // Yaw: 0, Pitch: 60
-                quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.382683f, -0.923880f)); // Yaw: 315, Pitch: 0
                 quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.382683f, 0.923880f)); // Yaw: 45, Pitch: 0
-                quaternions.add(new Quaternion(-0.500000f, -0.000000f, 0.866025f, 0.000000f)); // Yaw: 180, Pitch: -60
+                quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.382683f, -0.923880f)); // Yaw: 315, Pitch: 0
                 break;
+            //up-down
             case 2:
-                quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.923880f, -0.382683f)); // Yaw: 225, Pitch: 0
-                quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.923880f, 0.382683f)); // Yaw: 135, Pitch: 0
-                quaternions.add(new Quaternion(0.500000f, 0.000000f, 0.866025f, 0.000000f)); // Yaw: 180, Pitch: 60
-                quaternions.add(new Quaternion(0.000000f, -0.500000f, 0.000000f, 0.866025f)); // Yaw: 0, Pitch: -60
-
                 quaternions.add(new Quaternion(0.000000f, 0.500000f, 0.000000f, 0.866025f)); // Yaw: 0, Pitch: 60
-                quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.382683f, -0.923880f)); // Yaw: 315, Pitch: 0
-                quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.382683f, 0.923880f)); // Yaw: 45, Pitch: 0
+                quaternions.add(new Quaternion(0.000000f, -0.500000f, 0.000000f, 0.866025f)); // Yaw: 0, Pitch: -60
+                quaternions.add(new Quaternion(0.500000f, 0.000000f, 0.866025f, 0.000000f)); // Yaw: 180, Pitch: 60
                 quaternions.add(new Quaternion(-0.500000f, -0.000000f, 0.866025f, 0.000000f)); // Yaw: 180, Pitch: -60
                 break;
-
+            //front first and all
             case 3:
-                quaternions.add(new Quaternion(0.000000f, 0.500000f, 0.000000f, 0.866025f)); // Yaw: 0, Pitch: 60
-                quaternions.add(new Quaternion(0.000000f, -0.500000f, 0.000000f, 0.866025f)); // Yaw: 0, Pitch: -60
                 quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.382683f, 0.923880f)); // Yaw: 45, Pitch: 0
                 quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.382683f, -0.923880f)); // Yaw: 315, Pitch: 0
                 quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.923880f, -0.382683f)); // Yaw: 225, Pitch: 0
                 quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.923880f, 0.382683f)); // Yaw: 135, Pitch: 0
+                quaternions.add(new Quaternion(0.000000f, 0.500000f, 0.000000f, 0.866025f)); // Yaw: 0, Pitch: 60
+                quaternions.add(new Quaternion(0.000000f, -0.500000f, 0.000000f, 0.866025f)); // Yaw: 0, Pitch: -60
                 quaternions.add(new Quaternion(0.500000f, 0.000000f, 0.866025f, 0.000000f)); // Yaw: 180, Pitch: 60
                 quaternions.add(new Quaternion(-0.500000f, -0.000000f, 0.866025f, 0.000000f)); // Yaw: 180, Pitch: -60
                 break;
@@ -254,7 +246,7 @@ public class OasisUtils {
      * @return number of AR markers found
      */
     public static int scanOasisArea(KiboRpcApi api, int areaIdx, List<Point> oasisPoints, Map<Integer, DetectedItemInfo> detectedItemsMap,
-            java.util.Set<Integer> visitedArIds) {
+            java.util.Set<Integer> visitedArIds, int totalAR) {
         List<Quaternion>    oasisQuaternions = getOasisQuaternions(areaIdx);
         int totalNewMarkers = 0;
         for (int i = 0; i < oasisQuaternions.size(); i++) {
@@ -267,8 +259,8 @@ public class OasisUtils {
                     oasisQuaternions.get(i), api, detectedItemsMap);
             totalNewMarkers += newMarkers;
             // Visit all unvisited AR markers after each detection
-            visitAllUnvisitedArMarkers(api, detectedItemsMap, visitedArIds);
-            // if (newMarkers > 0) break; // Early exit after first detection(s) in this
+            visitAllUnvis1itedArMarkers(api, detectedItemsMap, visitedArIds);
+             if (totalAR + newMarkers != 4 && newMarkers > 0) break; // Early exit after first detection(s) in this
             // area
         }
         return totalNewMarkers;
