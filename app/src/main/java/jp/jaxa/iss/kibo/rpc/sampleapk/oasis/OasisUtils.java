@@ -259,8 +259,8 @@ public class OasisUtils {
                     oasisQuaternions.get(i), api, detectedItemsMap);
             totalNewMarkers += newMarkers;
             // Visit all unvisited AR markers after each detection
-            visitAllUnvis1itedArMarkers(api, detectedItemsMap, visitedArIds);
-             if (totalAR + newMarkers != 4 && newMarkers > 0) break; // Early exit after first detection(s) in this
+            visitAllUnvisitedArMarkers(api, detectedItemsMap, visitedArIds);
+            if (totalAR + newMarkers != 4 && newMarkers > 0) break; // Early exit after first detection(s) in this
             // area
         }
         return totalNewMarkers;
