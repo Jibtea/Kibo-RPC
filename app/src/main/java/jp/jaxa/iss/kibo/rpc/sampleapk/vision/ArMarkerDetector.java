@@ -18,7 +18,8 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.core.MatOfPoint;
 
 /**
- * Utility class for efficient AR marker detection and drawing using OpenCV ArUco.
+ * Utility class for efficient AR marker detection and drawing using OpenCV
+ * ArUco.
  * Optimized for real-time robotics on limited hardware.
  */
 public class ArMarkerDetector {
@@ -41,10 +42,12 @@ public class ArMarkerDetector {
     public static class DetectionResult {
         public final List<Mat> corners;
         public final Mat markerIds;
+
         public DetectionResult(List<Mat> corners, Mat markerIds) {
             this.corners = corners;
             this.markerIds = markerIds;
         }
+
         public boolean hasMarkers() {
             return corners != null && !corners.isEmpty();
         }
@@ -52,7 +55,8 @@ public class ArMarkerDetector {
 
     /**
      * Detect ArUco markers in the image using the specified dictionary.
-     * @param image Input image (will not be modified)
+     * 
+     * @param image        Input image (will not be modified)
      * @param dictionaryId ArUco dictionary ID
      * @return DetectionResult containing corners and marker IDs
      */
@@ -63,12 +67,13 @@ public class ArMarkerDetector {
         Aruco.detectMarkers(image, dictionary, corners, markerIds);
         return new DetectionResult(corners, markerIds);
     }
-    
+
     /**
      * Draw bounding boxes for detected markers on the image.
-     * @param image Image to draw on (modified in place)
+     * 
+     * @param image           Image to draw on (modified in place)
      * @param detectionResult Result from detectMarkers
-     * @param color Color for bounding boxes
+     * @param color           Color for bounding boxes
      */
     public static void drawBoundingBoxes(Mat image, DetectionResult detectionResult, Scalar color) {
         if (detectionResult != null && detectionResult.hasMarkers()) {
@@ -78,20 +83,22 @@ public class ArMarkerDetector {
 
     /**
      * Detect markers and draw bounding boxes in one step (for convenience).
-     * @param image Image to process (modified in place)
+     * 
+     * @param image        Image to process (modified in place)
      * @param dictionaryId ArUco dictionary ID
      * @return DetectionResult containing marker data
      */
     public static DetectionResult detectAndDrawMarkers(Mat image, int dictionaryId) {
         DetectionResult result = detectMarkers(image, dictionaryId);
-        //drawBoundingBoxes(image, result, new Scalar(0, 255, 0));
+        // drawBoundingBoxes(image, result, new Scalar(0, 255, 0));
         return result;
     }
 
     /**
      * Extract camera matrix and distortion coefficients from flat arrays.
+     * 
      * @param cameraMatrixArr double[9] camera matrix (row-major)
-     * @param distCoeffsArr double[5] distortion coefficients
+     * @param distCoeffsArr   double[5] distortion coefficients
      * @return array: [cameraMatrix, distCoeffs]
      */
     public static Mat[] extractCameraIntrinsics(double[] cameraMatrixArr, double[] distCoeffsArr) {
@@ -110,31 +117,31 @@ public class ArMarkerDetector {
         return new Mat[] { cameraMatrix, distCoeffs };
     }
 
-
-
     /**
      * Estimate pose and log tvec and angle for each detected marker.
      */
-    public static void logMarkerPose(DetectionResult result, float markerLength, Mat cameraMatrix, Mat distCoeffs, Quaternion orientation) {
+    public static void logMarkerPose(DetectionResult result, float markerLength, Mat cameraMatrix, Mat distCoeffs,
+            Quaternion orientation) {
         Mat rvecsMat = new Mat();
         Mat tvecsMat = new Mat();
-        org.opencv.aruco.Aruco.estimatePoseSingleMarkers(result.corners, markerLength, cameraMatrix, distCoeffs, rvecsMat, tvecsMat);
+        org.opencv.aruco.Aruco.estimatePoseSingleMarkers(result.corners, markerLength, cameraMatrix, distCoeffs,
+                rvecsMat, tvecsMat);
         for (int j = 0; j < result.markerIds.rows(); j++) {
             double[] tvec = tvecsMat.get(j, 0);
             double dx = tvec[0];
             double dy = tvec[1];
             double dz = tvec[2];
-            double distance = Math.sqrt(dx*dx + dy*dy + dz*dz);
+            double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
             double angle = Math.toDegrees(Math.acos(dz / distance));
             android.util.Log.i("ArMarkerDetector", String.format(
-                "AR marker ID: %d, tvec: [%.3f, %.3f, %.3f], distance: %.3f m, angle: %.2f deg, orientation: %s",
-                (int)result.markerIds.get(j,0)[0], dx, dy, dz, distance, angle, orientation.toString()
-            ));
+                    "AR marker ID: %d, tvec: [%.3f, %.3f, %.3f], distance: %.3f m, angle: %.2f deg, orientation: %s",
+                    (int) result.markerIds.get(j, 0)[0], dx, dy, dz, distance, angle, orientation.toString()));
         }
     }
-    
+
     /**
-     * Draw the boundary of the paper using the AR marker as reference with custom dimensions.
+     * Draw the boundary of the paper using the AR marker as reference with custom
+     * dimensions.
      * Additionally, blur everything outside the detected paper boundary.
      */
     public static void drawPaperBoundary(Mat image, Mat rvec, Mat tvec, Mat cameraMatrix, Mat distCoeffs) {
@@ -144,20 +151,22 @@ public class ArMarkerDetector {
         double markerInsetRight = 0.071; // meters (5.1 cm from right)
         // Paper corners relative to marker center (0,0,0):
         // Top-left: left by (paperWidth - markerInsetRight), up by markerInsetTop
-        // Top-right: right by markerInsetRight, up by markerInsetTop  
-        // Bottom-left: left by (paperWidth - markerInsetRight), down by (paperHeight - markerInsetTop)
-        // Bottom-right: right by markerInsetRight, down by (paperHeight - markerInsetTop)
+        // Top-right: right by markerInsetRight, up by markerInsetTop
+        // Bottom-left: left by (paperWidth - markerInsetRight), down by (paperHeight -
+        // markerInsetTop)
+        // Bottom-right: right by markerInsetRight, down by (paperHeight -
+        // markerInsetTop)
         MatOfPoint3f paperWorldCorners = new MatOfPoint3f(
-            new Point3(-(paperWidth - markerInsetRight), markerInsetTop, 0), // top-left
-            new Point3(markerInsetRight, markerInsetTop, 0), // top-right
-            new Point3(markerInsetRight, - (paperHeight - markerInsetTop), 0), // bottom-right
-            new Point3(-(paperWidth - markerInsetRight), - (paperHeight - markerInsetTop), 0) // bottom-left
+                new Point3(-(paperWidth - markerInsetRight), markerInsetTop, 0), // top-left
+                new Point3(markerInsetRight, markerInsetTop, 0), // top-right
+                new Point3(markerInsetRight, -(paperHeight - markerInsetTop), 0), // bottom-right
+                new Point3(-(paperWidth - markerInsetRight), -(paperHeight - markerInsetTop), 0) // bottom-left
         );
 
         // Convert distCoeffs to MatOfDouble for projectPoints
         org.opencv.core.MatOfDouble distCoeffsDouble = new org.opencv.core.MatOfDouble();
         if (distCoeffs != null && distCoeffs.total() > 0) {
-            double[] distVals = new double[(int)distCoeffs.total()];
+            double[] distVals = new double[(int) distCoeffs.total()];
             distCoeffs.get(0, 0, distVals);
             distCoeffsDouble.fromArray(distVals);
         }
@@ -167,32 +176,31 @@ public class ArMarkerDetector {
         // Draw the boundary
         Point[] pts = paperImageCorners.toArray();
         for (int i = 0; i < 4; i++) {
-            Imgproc.line(image, pts[i], pts[(i+1)%4], new Scalar(0,0,255), 3);
+            Imgproc.line(image, pts[i], pts[(i + 1) % 4], new Scalar(0, 0, 255), 3);
         }
 
         // --- Blur everything outside the paper boundary ---
         // 1. Create mask for the paper area
         Mat mask = Mat.zeros(image.size(), org.opencv.core.CvType.CV_8UC1);
         MatOfPoint paperContour = new MatOfPoint(
-            new Point(pts[0].x, pts[0].y),
-            new Point(pts[1].x, pts[1].y),
-            new Point(pts[2].x, pts[2].y),
-            new Point(pts[3].x, pts[3].y)
-        );
+                new Point(pts[0].x, pts[0].y),
+                new Point(pts[1].x, pts[1].y),
+                new Point(pts[2].x, pts[2].y),
+                new Point(pts[3].x, pts[3].y));
         List<MatOfPoint> contours = new ArrayList<>();
         contours.add(paperContour);
         Imgproc.fillPoly(mask, contours, new Scalar(255));
 
-        // 2. Blur the whole image
+        // 1. Create an inverted mask (areas to blur)
+        Mat invertedMask = new Mat();
+        Core.bitwise_not(mask, invertedMask);
+
+        // 2. Blur only the original image (not the whole image)
         Mat blurred = new Mat();
-        Imgproc.blur(image, blurred, new org.opencv.core.Size(35, 35));
+        Imgproc.blur(image, blurred, new org.opencv.core.Size(15, 15)); // Use a smaller kernel for more speed
 
-        // 3. Copy the unblurred paper area back onto the blurred image
-        image.copyTo(blurred, mask);
-
-        // 4. Copy the result back to the original image
-        blurred.copyTo(image);
+        // 3. Copy blurred regions to the original image using the inverted mask
+        blurred.copyTo(image, invertedMask);
     }
-    
 
 }
