@@ -26,7 +26,7 @@ public class OasisUtils {
         return points;
     }
 
-    public static List<Quaternion> getOasisQuaternions(int areaIdx) {
+    public static List<Quaternion> getOasisQuaternions(){
         List<Quaternion> quaternions = new ArrayList<>();
         quaternions.add(new Quaternion(0.000000f, 0.500000f, 0.000000f, 0.866025f)); // Yaw: 0, Pitch: 60
         quaternions.add(new Quaternion(0.000000f, -0.500000f, 0.000000f, 0.866025f)); // Yaw: 0, Pitch: -60
