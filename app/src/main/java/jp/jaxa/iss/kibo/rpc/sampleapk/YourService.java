@@ -44,9 +44,12 @@ public class YourService extends KiboRpcService {
         List<Point> oasisPoints = OasisUtils.getOasisPoints();
         List<Quaternion> oasisQuaternions = OasisUtils.getOasisQuaternions();
         int arCounter = 0;
+        // Add a map to store detected AR marker info
+        java.util.Map<Integer, jp.jaxa.iss.kibo.rpc.sampleapk.oasis.DetectedItemInfo> detectedItemsMap = new java.util.HashMap<>();
+        // Add a set to track visited AR marker IDs across all scans
+        java.util.Set<Integer> visitedArIds = new java.util.HashSet<>();
         for (int areaIdx = 0; areaIdx < OASIS_AREA_COUNT; areaIdx++) {
-            arCounter += OasisUtils.scanOasisArea(api, areaIdx, oasisPoints, oasisQuaternions);
-            //processAreaRecognition(areaIdx);
+            arCounter += OasisUtils.scanOasisArea(api, areaIdx, oasisPoints, oasisQuaternions, detectedItemsMap, visitedArIds);
         }
         AstronautUtils.moveToAstronautAndReport(api);
         AstronautUtils.recognizeAndReportTargetItem(api);
