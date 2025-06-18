@@ -269,6 +269,8 @@ public class OasisUtils {
         final double DESIRED_DISTANCE = 0.7; // meters (adjust as needed)
         for (DetectedItemInfo info : detectedItemsMap.values()) {
             if (isArVisited(info.arId, visitedArIds)) continue;
+            // Mark as visited ก่อน เพื่อไม่ให้ถ่ายซ้ำถ้าเรียกซ้ำ
+            visitedArIds.add(info.arId);
             // Compute AR marker world position
             Point arWorldPos = computeArMarkerWorldPosition(info.point, info.orientation, info.tvec);
             // Compute approach point (DESIRED_DISTANCE away from marker, along camera Z axis)
@@ -283,8 +285,6 @@ public class OasisUtils {
             Point approachPoint = new Point(ax, ay, az);
             // Move to approach point and orientation
             captureImageAt(api, approachPoint, info.orientation);
-            // Mark as visited
-            visitedArIds.add(info.arId);
             // (Optional) Process the image or perform additional logic here
         }
     }
