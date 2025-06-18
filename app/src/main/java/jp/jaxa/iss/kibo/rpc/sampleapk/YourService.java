@@ -54,6 +54,7 @@ public class YourService extends KiboRpcService {
         AstronautUtils.moveToAstronautAndReport(api);
         AstronautUtils.recognizeAndReportTargetItem(api);
         AstronautUtils.moveToTargetItemAndSnapshot(api);
+        Log.i(TAG, "endOfMission");
     }
 
     /**
