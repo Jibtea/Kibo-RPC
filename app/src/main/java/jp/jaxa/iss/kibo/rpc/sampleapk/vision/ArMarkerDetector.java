@@ -138,7 +138,8 @@ public class ArMarkerDetector {
      * Draw the boundary of the paper using the AR marker as reference with custom dimensions.
      * Additionally, blur everything outside the detected paper boundary.
      */
-    /* 
+    
+
     public static void drawPaperBoundary(Mat image, Mat rvec, Mat tvec, Mat cameraMatrix, Mat distCoeffs) {
         double paperWidth = 0.35; // meters (28.35 cm)
         double paperHeight = 0.27; // meters (18 cm)
@@ -196,7 +197,7 @@ public class ArMarkerDetector {
         // 4. Copy blurred regions to the original image using the inverted mask
         blurred.copyTo(image, invertedMask);
     }
-    */
+    
 
     /**
      * Crop only the paper area from the image using the projected paper boundary.
@@ -242,7 +243,8 @@ public class ArMarkerDetector {
         Imgproc.warpPerspective(image, cropped, perspectiveTransform,
                 new org.opencv.core.Size(paperWidth * 1000, paperHeight * 1000)); // Output size in pixels
 
-        cropped.copyTo(image, invertedMask);
+        // Return the cropped paper area only
+        return cropped;
     }
     
 

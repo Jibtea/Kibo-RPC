@@ -136,12 +136,18 @@ public class OasisUtils {
     /**
      * Draw and save the paper boundary for the first detected marker.
      */
-    private static void drawAndSavePaperBoundary(Mat image, int areaIdx, int orientationIdx, ArMarkerDetector.DetectionResult result, Mat rvecsMat, Mat tvecsMat, Mat[] mats, KiboRpcApi api) {
+    private static void drawAndSavePaperBoundary(Mat image, int areaIdx, int orientationIdx, ArMarkerDetector.DetectionResult result, Mat rvecsMat, Mat tvecsMat, Mat[] mats, KiboRpcApi api, Map<Integer, DetectedItemInfo> detectedItemsMap) {
         if (result.corners.size() > 0) {
-            Mat rvec = rvecsMat.row(0);
-            Mat tvec = tvecsMat.row(0);
-            ArMarkerDetector.drawPaperBoundary(image, rvec, tvec, mats[0], mats[1]);
-            api.saveMatImage(image, String.format("OasisArea%d_%d_AR%d_paper_boundary.png", areaIdx, orientationIdx, (int)result.markerIds.get(0,0)[0]));
+            int arId = (int)result.markerIds.get(0,0)[0];
+            if (!detectedItemsMap.containsKey(arId)) {
+                Mat rvec = rvecsMat.row(0);
+                Mat tvec = tvecsMat.row(0);
+                // Mat cropped = jp.jaxa.iss.kibo.rpc.sampleapk.vision.ArMarkerDetector.cropPaperArea(image, rvec, tvec, mats[0], mats[1]);
+                // api.saveMatImage(cropped, String.format("OasisArea%d_%d_AR%d_paper_boundary.png", areaIdx, orientationIdx, arId));
+                // Call drawPaperBoundary instead
+                jp.jaxa.iss.kibo.rpc.sampleapk.vision.ArMarkerDetector.drawPaperBoundary(image, rvec, tvec, mats[0], mats[1]);
+                api.saveMatImage(image, String.format("OasisArea%d_%d_AR%d_paper_boundary.png", areaIdx, orientationIdx, arId));
+            }
         }
     }
 
@@ -165,7 +171,7 @@ public class OasisUtils {
         Mat rvecsMat = new Mat();
         Mat tvecsMat = new Mat();
         org.opencv.aruco.Aruco.estimatePoseSingleMarkers(result.corners, markerLength, mats[0], mats[1], rvecsMat, tvecsMat);
-        drawAndSavePaperBoundary(image, areaIdx, orientationIdx, result, rvecsMat, tvecsMat, mats, api);
+        drawAndSavePaperBoundary(image, areaIdx, orientationIdx, result, rvecsMat, tvecsMat, mats, api, detectedItemsMap);
         for (int j = 0; j < result.markerIds.rows(); j++) {
             int arId = (int)result.markerIds.get(j, 0)[0];
             if (detectedItemsMap.containsKey(arId)) continue; // Only store new markers
