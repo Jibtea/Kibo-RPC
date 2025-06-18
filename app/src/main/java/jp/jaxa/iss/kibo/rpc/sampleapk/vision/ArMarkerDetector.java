@@ -184,15 +184,16 @@ public class ArMarkerDetector {
         contours.add(paperContour);
         Imgproc.fillPoly(mask, contours, new Scalar(255));
 
-        // 2. Blur the whole image
+        // 2. Create an inverted mask (areas to blur)
+        Mat invertedMask = new Mat();
+        Core.bitwise_not(mask, invertedMask);
+
+        // 3. Blur only the original image (not the whole image)
         Mat blurred = new Mat();
-        Imgproc.blur(image, blurred, new org.opencv.core.Size(35, 35));
+        Imgproc.blur(image, blurred, new org.opencv.core.Size(15, 15)); // Use a smaller kernel for more speed
 
-        // 3. Copy the unblurred paper area back onto the blurred image
-        image.copyTo(blurred, mask);
-
-        // 4. Copy the result back to the original image
-        blurred.copyTo(image);
+        // 4. Copy blurred regions to the original image using the inverted mask
+        blurred.copyTo(image, invertedMask);
     }
     
 
