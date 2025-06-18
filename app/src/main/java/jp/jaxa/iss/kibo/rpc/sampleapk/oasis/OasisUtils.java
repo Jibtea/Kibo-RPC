@@ -28,68 +28,59 @@ public class OasisUtils {
 
     public static List<Quaternion> getOasisQuaternions() {
         List<Quaternion> quaternions = new ArrayList<>();
-                                         //x y z w
-        quaternions.add(new Quaternion(1f, 0f, 0, 0f));
-        //Pitch = 0 องศา
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
 
-        //Pitch = +40 องศา
-        quaternions.add(new Quaternion(0f, 0.3420f, 0f, 0.9397f));
+        // --- Pitch = 80 degrees ---
+        quaternions.add(new Quaternion(0.000000f, 0.642788f, 0.000000f, 0.766044f)); // Yaw: 0, Pitch: 80
+        quaternions.add(new Quaternion(0.219846f, 0.604023f, 0.262003f, 0.719846f)); // Yaw: 40, Pitch: 80
+        quaternions.add(new Quaternion(0.413176f, 0.492404f, 0.492404f, 0.586824f)); // Yaw: 80, Pitch: 80
+        quaternions.add(new Quaternion(0.556670f, 0.321394f, 0.663414f, 0.383022f)); // Yaw: 120, Pitch: 80
+        quaternions.add(new Quaternion(0.633022f, 0.111619f, 0.754407f, 0.133022f)); // Yaw: 160, Pitch: 80
+        quaternions.add(new Quaternion(0.633022f, -0.111619f, 0.754407f, -0.133022f)); // Yaw: 200, Pitch: 80
+        quaternions.add(new Quaternion(0.556670f, -0.321394f, 0.663414f, -0.383022f)); // Yaw: 240, Pitch: 80
+        quaternions.add(new Quaternion(0.413176f, -0.492404f, 0.492404f, -0.586824f)); // Yaw: 280, Pitch: 80
+        quaternions.add(new Quaternion(0.219846f, -0.604023f, 0.262003f, -0.719846f)); // Yaw: 320, Pitch: 80
 
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
+        // --- Pitch = 40 degrees ---
+        quaternions.add(new Quaternion(0.116978f, 0.321394f, 0.321394f, 0.883022f)); // Yaw: 40, Pitch: 40
+        quaternions.add(new Quaternion(0.219846f, 0.262003f, 0.604023f, 0.719846f)); // Yaw: 80, Pitch: 40
+        quaternions.add(new Quaternion(0.296198f, 0.171010f, 0.813798f, 0.469846f)); // Yaw: 120, Pitch: 40
+        quaternions.add(new Quaternion(0.336824f, 0.059391f, 0.925417f, 0.163176f)); // Yaw: 160, Pitch: 40
+        quaternions.add(new Quaternion(0.336824f, -0.059391f, 0.925417f, -0.163176f)); // Yaw: 200, Pitch: 40
+        quaternions.add(new Quaternion(0.296198f, -0.171010f, 0.813798f, -0.469846f)); // Yaw: 240, Pitch: 40
+        quaternions.add(new Quaternion(0.219846f, -0.262003f, 0.604023f, -0.719846f)); // Yaw: 280, Pitch: 40
+        quaternions.add(new Quaternion(0.116978f, -0.321394f, 0.321394f, -0.883022f)); // Yaw: 320, Pitch: 40
 
-        // Pitch = +80 องศา
-        quaternions.add(new Quaternion(0f, 0.3420f, 0f, 0.9397f));
+        // --- Pitch = 0 degrees ---
+        quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.000000f, 1.000000f)); // Yaw: 0, Pitch: 0
+        quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.342020f, 0.939693f)); // Yaw: 40, Pitch: 0
+        quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.642788f, 0.766044f)); // Yaw: 80, Pitch: 0
+        quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.866025f, 0.500000f)); // Yaw: 120, Pitch: 0
+        quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.984808f, 0.173648f)); // Yaw: 160, Pitch: 0
+        quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.984808f, -0.173648f)); // Yaw: 200, Pitch: 0
+        quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.866025f, -0.500000f)); // Yaw: 240, Pitch: 0
+        quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.642788f, -0.766044f)); // Yaw: 280, Pitch: 0
+        quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.342020f, -0.939693f)); // Yaw: 320, Pitch: 0
 
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
+        // --- Pitch = -40 degrees ---
+        quaternions.add(new Quaternion(-0.116978f, -0.321394f, 0.321394f, 0.883022f)); // Yaw: 40, Pitch: -40
+        quaternions.add(new Quaternion(-0.219846f, -0.262003f, 0.604023f, 0.719846f)); // Yaw: 80, Pitch: -40
+        quaternions.add(new Quaternion(-0.296198f, -0.171010f, 0.813798f, 0.469846f)); // Yaw: 120, Pitch: -40
+        quaternions.add(new Quaternion(-0.336824f, -0.059391f, 0.925417f, 0.163176f)); // Yaw: 160, Pitch: -40
+        quaternions.add(new Quaternion(-0.336824f, 0.059391f, 0.925417f, -0.163176f)); // Yaw: 200, Pitch: -40
+        quaternions.add(new Quaternion(-0.296198f, 0.171010f, 0.813798f, -0.469846f)); // Yaw: 240, Pitch: -40
+        quaternions.add(new Quaternion(-0.219846f, 0.262003f, 0.604023f, -0.719846f)); // Yaw: 280, Pitch: -40
+        quaternions.add(new Quaternion(-0.116978f, 0.321394f, 0.321394f, -0.883022f)); // Yaw: 320, Pitch: -40
 
-        // จาก +80 ลงมา -40 ในครั้งเดียว
-        quaternions.add(new Quaternion(0f, -0.8660f, 0f, 0.5f));
-        
-        // --- ตอนนี้กล้องอยู่ที่ Pitch = -40 องศา เริ่มสแกนแนวนอนแถวนี้ ---
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-
-        // --- เพื่อไปแถวสุดท้าย (Pitch = -80) ให้ก้มลงอีกครั้ง ---
-        quaternions.add(new Quaternion(0, -0.3420f, 0, 0.9397f));
-
-        // --- ตอนนี้กล้องอยู่ที่ Pitch = -80 องศา เริ่มสแกนแนวนอนแถวสุดท้าย ---
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-        quaternions.add(new Quaternion(0f, 0f, 0.3420f, 0.9397f));
-
+        // --- Pitch = -80 degrees ---
+        quaternions.add(new Quaternion(0.000000f, -0.642788f, 0.000000f, 0.766044f)); // Yaw: 0, Pitch: -80
+        quaternions.add(new Quaternion(-0.219846f, -0.604023f, 0.262003f, 0.719846f)); // Yaw: 40, Pitch: -80
+        quaternions.add(new Quaternion(-0.413176f, -0.492404f, 0.492404f, 0.586824f)); // Yaw: 80, Pitch: -80
+        quaternions.add(new Quaternion(-0.556670f, -0.321394f, 0.663414f, 0.383022f)); // Yaw: 120, Pitch: -80
+        quaternions.add(new Quaternion(-0.633022f, -0.111619f, 0.754407f, 0.133022f)); // Yaw: 160, Pitch: -80
+        quaternions.add(new Quaternion(-0.633022f, 0.111619f, 0.754407f, -0.133022f)); // Yaw: 200, Pitch: -80
+        quaternions.add(new Quaternion(-0.556670f, 0.321394f, 0.663414f, -0.383022f)); // Yaw: 240, Pitch: -80
+        quaternions.add(new Quaternion(-0.413176f, 0.492404f, 0.492404f, -0.586824f)); // Yaw: 280, Pitch: -80
+        quaternions.add(new Quaternion(-0.219846f, 0.604023f, 0.262003f, -0.719846f)); // Yaw: 320, Pitch: -80
 
         // quaternions.add(new Quaternion(0f, 0f, -0.707f, 0.707f));
         // quaternions.add(new Quaternion(0.707f, 0f, 0.707f, 0.707f));
