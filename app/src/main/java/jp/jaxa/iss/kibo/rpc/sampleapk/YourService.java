@@ -50,7 +50,7 @@ public class YourService extends KiboRpcService {
         java.util.Set<Integer> visitedArIds = new java.util.HashSet<>();
         for (int areaIdx = 0; areaIdx < OASIS_AREA_COUNT; areaIdx++) {
             arCounter += OasisUtils.scanOasisArea(api, areaIdx, oasisPoints, oasisQuaternions, detectedItemsMap, visitedArIds);
-        }
+        }        ArMarkerDetector.cropPaperArea(image, rvec, tvec, cameraMatrix, distCoeffs);
         AstronautUtils.moveToAstronautAndReport(api);
         AstronautUtils.recognizeAndReportTargetItem(api);
         AstronautUtils.moveToTargetItemAndSnapshot(api);

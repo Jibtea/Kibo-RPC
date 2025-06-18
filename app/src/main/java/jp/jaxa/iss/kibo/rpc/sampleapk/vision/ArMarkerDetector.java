@@ -138,6 +138,7 @@ public class ArMarkerDetector {
      * Draw the boundary of the paper using the AR marker as reference with custom dimensions.
      * Additionally, blur everything outside the detected paper boundary.
      */
+    /* 
     public static void drawPaperBoundary(Mat image, Mat rvec, Mat tvec, Mat cameraMatrix, Mat distCoeffs) {
         double paperWidth = 0.35; // meters (28.35 cm)
         double paperHeight = 0.27; // meters (18 cm)
@@ -194,6 +195,54 @@ public class ArMarkerDetector {
 
         // 4. Copy blurred regions to the original image using the inverted mask
         blurred.copyTo(image, invertedMask);
+    }
+    */
+
+    /**
+     * Crop only the paper area from the image using the projected paper boundary.
+     * Returns a new Mat containing the cropped area (with perspective correction).
+     */
+    public static Mat cropPaperArea(Mat image, Mat rvec, Mat tvec, Mat cameraMatrix, Mat distCoeffs) {
+        double paperWidth = 0.35; // meters
+        double paperHeight = 0.27; // meters
+        double markerInsetTop = 0.0675; // meters
+        double markerInsetRight = 0.071; // meters
+
+        // Paper corners in world coordinates
+        MatOfPoint3f paperWorldCorners = new MatOfPoint3f(
+                new Point3(-(paperWidth - markerInsetRight), markerInsetTop, 0), // top-left
+                new Point3(markerInsetRight, markerInsetTop, 0), // top-right
+                new Point3(markerInsetRight, -(paperHeight - markerInsetTop), 0), // bottom-right
+                new Point3(-(paperWidth - markerInsetRight), -(paperHeight - markerInsetTop), 0) // bottom-left
+        );
+
+        // Convert distCoeffs to MatOfDouble for projectPoints
+        org.opencv.core.MatOfDouble distCoeffsDouble = new org.opencv.core.MatOfDouble();
+        if (distCoeffs != null && distCoeffs.total() > 0) {
+            double[] distVals = new double[(int) distCoeffs.total()];
+            distCoeffs.get(0, 0, distVals);
+            distCoeffsDouble.fromArray(distVals);
+        }
+
+        // Project paper corners to image
+        MatOfPoint2f paperImageCorners = new MatOfPoint2f();
+        Calib3d.projectPoints(paperWorldCorners, rvec, tvec, cameraMatrix, distCoeffsDouble, paperImageCorners);
+
+        // Destination points for perspective transform (rectangle)
+        MatOfPoint2f dstCorners = new MatOfPoint2f(
+                new Point(0, 0), // top-left
+                new Point(paperWidth * 1000, 0), // top-right (convert m to mm for pixel size)
+                new Point(paperWidth * 1000, paperHeight * 1000), // bottom-right
+                new Point(0, paperHeight * 1000) // bottom-left
+        );
+
+        // Get perspective transform and warp
+        Mat perspectiveTransform = Imgproc.getPerspectiveTransform(paperImageCorners, dstCorners);
+        Mat cropped = new Mat();
+        Imgproc.warpPerspective(image, cropped, perspectiveTransform,
+                new org.opencv.core.Size(paperWidth * 1000, paperHeight * 1000)); // Output size in pixels
+
+        cropped.copyTo(image, invertedMask);
     }
     
 
