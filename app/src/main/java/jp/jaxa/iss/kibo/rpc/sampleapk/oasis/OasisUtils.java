@@ -29,23 +29,19 @@ public class OasisUtils {
     public static List<Quaternion> getOasisQuaternions() {
         List<Quaternion> quaternions = new ArrayList<>();
 
-        // --- Pitch = 40 degrees ---
-        quaternions.add(new Quaternion(0.315985f, -0.130885f, 0.868163f, -0.359605f)); // Yaw: 225, Pitch: 40
-        quaternions.add(new Quaternion(0.130885f, -0.315985f, 0.359605f, -0.868163f)); // Yaw: 315, Pitch: 40
-        quaternions.add(new Quaternion(0.130885f, 0.315985f, 0.359605f, 0.868163f)); // Yaw: 45, Pitch: 40
-        quaternions.add(new Quaternion(0.315985f, 0.130885f, 0.868163f, 0.359605f)); // Yaw: 135, Pitch: 40
+        // --- Pitch = 60 degrees ---
+        quaternions.add(new Quaternion(0.000000f, 0.500000f, 0.000000f, 0.866025f)); // Yaw: 0, Pitch: 60
+        quaternions.add(new Quaternion(0.500000f, 0.000000f, 0.866025f, 0.000000f)); // Yaw: 180, Pitch: 60
 
         // --- Pitch = 0 degrees ---
-        quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.923880f, -0.382683f)); // Yaw: 225, Pitch: 0
-        quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.382683f, -0.923880f)); // Yaw: 315, Pitch: 0
         quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.382683f, 0.923880f)); // Yaw: 45, Pitch: 0
+        quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.382683f, -0.923880f)); // Yaw: 315, Pitch: 0
+        quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.923880f, -0.382683f)); // Yaw: 225, Pitch: 0
         quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.923880f, 0.382683f)); // Yaw: 135, Pitch: 0
 
-        // --- Pitch = -40 degrees ---
-        quaternions.add(new Quaternion(-0.315985f, 0.130885f, 0.868163f, -0.359605f)); // Yaw: 225, Pitch: -40
-        quaternions.add(new Quaternion(-0.130885f, 0.315985f, 0.359605f, -0.868163f)); // Yaw: 315, Pitch: -40
-        quaternions.add(new Quaternion(-0.130885f, -0.315985f, 0.359605f, 0.868163f)); // Yaw: 45, Pitch: -40
-        quaternions.add(new Quaternion(-0.315985f, -0.130885f, 0.868163f, 0.359605f)); // Yaw: 135, Pitch: -40
+        // --- Pitch = -60 degrees ---
+        quaternions.add(new Quaternion(0.000000f, -0.500000f, 0.000000f, 0.866025f)); // Yaw: 0, Pitch: -60
+        quaternions.add(new Quaternion(-0.500000f, -0.000000f, 0.866025f, 0.000000f)); // Yaw: 180, Pitch: -60
         return quaternions;
     }
 
