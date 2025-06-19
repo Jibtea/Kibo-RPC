@@ -269,7 +269,7 @@ public class OasisUtils {
             totalNewMarkers += newMarkers;
             // Visit all unvisited AR markers after each detection
             visitAllUnvisitedArMarkers(api, detectedItemsMap, visitedArIds);
-            if (totalAR + newMarkers != 4 && newMarkers > 0) break; // Early exit after first detection(s) in this
+            if (totalAR + newMarkers == 4 || (newMarkers > 0 && areaIdx != 3)) break; // Early exit after first detection(s) in this
             // area
         }
         return totalNewMarkers;
