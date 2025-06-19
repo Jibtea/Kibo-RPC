@@ -41,9 +41,12 @@ public class OasisUtils {
          */
         switch (areaIdx) {
             case 0: // back up-b down-b     
+
+            quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.382683f, -0.923880f)); // Yaw: 315, Pitch: 0
             quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.923880f, -0.382683f)); // Yaw: 225, Pitch: 0
             quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.923880f, 0.382683f)); // Yaw: 135, Pitch: 0
-                
+            quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.382683f, 0.923880f)); // Yaw: 45, Pitch: 0
+
             quaternions.add(new Quaternion(-0.500000f, -0.000000f, 0.866025f, 0.000000f)); // Yaw: 180, Pitch: -60
             quaternions.add(new Quaternion(0.500000f, 0.000000f, 0.866025f, 0.000000f)); // Yaw: 180, Pitch: 60
               break;
