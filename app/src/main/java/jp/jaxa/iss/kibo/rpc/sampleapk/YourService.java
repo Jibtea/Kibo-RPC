@@ -49,7 +49,7 @@ public class YourService extends KiboRpcService {
         java.util.Set<Integer> visitedArIds = new java.util.HashSet<>();
         for (int areaIdx = 0; areaIdx < OASIS_AREA_COUNT; areaIdx++) {
             arCounter += OasisUtils.scanOasisArea(api, areaIdx, oasisPoints, detectedItemsMap, visitedArIds);
-            if(visitedArIds == 4){
+            if(visitedArIds.size() == 4){
                 break;
             }
         }
