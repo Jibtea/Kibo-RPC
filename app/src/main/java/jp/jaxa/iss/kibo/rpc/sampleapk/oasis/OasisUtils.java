@@ -255,7 +255,7 @@ public class OasisUtils {
      * @return number of AR markers found
      */
     public static int scanOasisArea(KiboRpcApi api, int areaIdx, List<Point> oasisPoints, Map<Integer, DetectedItemInfo> detectedItemsMap,
-            java.util.Set<Integer> visitedArIds, int totalAR) {
+            java.util.Set<Integer> visitedArIds) {
         List<Quaternion>    oasisQuaternions = getOasisQuaternions(areaIdx);
         int totalNewMarkers = 0;
         for (int i = 0; i < oasisQuaternions.size(); i++) {
@@ -269,7 +269,7 @@ public class OasisUtils {
             totalNewMarkers += newMarkers;
             // Visit all unvisited AR markers after each detection
             visitAllUnvisitedArMarkers(api, detectedItemsMap, visitedArIds);
-            if (totalAR + newMarkers == 4 || (newMarkers > 0 && areaIdx != 3)) break; // Early exit after first detection(s) in this
+            if (visitedArIds.size() + newMarkers == 4 || (newMarkers > 0 && areaIdx != 3)) break; // Early exit after first detection(s) in this
             // area
         }
         return totalNewMarkers;
