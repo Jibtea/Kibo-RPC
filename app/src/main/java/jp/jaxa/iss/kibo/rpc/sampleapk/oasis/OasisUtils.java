@@ -191,6 +191,11 @@ public class OasisUtils {
                 org.opencv.aruco.Aruco.DICT_5X5_250);
         if (!result.hasMarkers())
             return 0;
+        int arId = (int) result.markerIds.get(0, 0)[0];
+        if((arId - 101) != areaIdx){
+            android.util.Log.i("AR %d doesn't match area %d", arId, areaIdx);
+            return 0;
+        } 
         float markerLength = 0.0575f;
         double[][] navCamIntrinsics = api.getNavCamIntrinsics();
         Mat[] mats = ArMarkerDetector.extractCameraIntrinsics(navCamIntrinsics[0], navCamIntrinsics[1]);
@@ -252,7 +257,7 @@ public class OasisUtils {
             totalNewMarkers += newMarkers;
             // Visit all unvisited AR markers after each detection
             visitAllUnvisitedArMarkers(api, detectedItemsMap, visitedArIds);
-            if (isArVisited((100 + areaIdx + 1), visitedArIds)) break; // Early exit after first detection(s) in this
+            if (isArVisited((100 + areaIdx + 1), visitedArIds)) break; // Early exit after detect match AR and Area
             // area
         }
         return totalNewMarkers;
