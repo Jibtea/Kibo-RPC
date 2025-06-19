@@ -76,7 +76,7 @@ public class OasisUtils {
 
                 break;
 
-            case 3://up down front back
+            case 3://
             
             quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.923880f, 0.382683f)); // Yaw: 135, Pitch: 0
             quaternions.add(new Quaternion(0.000000f, 0.000000f, 0.923880f, -0.382683f)); // Yaw: 225, Pitch: 0
