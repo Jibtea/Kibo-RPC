@@ -191,9 +191,9 @@ public class OasisUtils {
                 org.opencv.aruco.Aruco.DICT_5X5_250);
         if (!result.hasMarkers())
             return 0;
-        int arId = (int) result.markerIds.get(0, 0)[0];
-        if((arId - 101) != areaIdx){
-            android.util.Log.i("AR %d doesn't match area %d", arId, areaIdx);
+        int currentId = (int) result.markerIds.get(0, 0)[0];
+        if((currentId - 101) != areaIdx){
+            Log.i("OasisUtils", String.format("AR %d doesn't match area %d", currentId, areaIdx));
             return 0;
         } 
         float markerLength = 0.0575f;
