@@ -256,7 +256,7 @@ public class OasisUtils {
             totalNewMarkers += newMarkers;
             // Visit all unvisited AR markers after each detection
             visitAllUnvisitedArMarkers(api, detectedItemsMap, visitedArIds);
-            if (isArVisited((100 + areaIdx + 1), visitedArIds)) break; // Early exit after detect match AR and Area
+            if (totalNewMarkers > 0 && isArVisited((100 + areaIdx + 1), visitedArIds)) break; // Early exit after detect match AR and Area
             // area
         }
         return totalNewMarkers;
