@@ -17,12 +17,37 @@ public class AstronautUtils {
         api.moveTo(point, quaternion, false);
         api.reportRoundingCompletion();
     }
-    public static void recognizeAndReportTargetItem(KiboRpcApi api) {
+    public static void recognizeAndReportTargetItem(KiboRpcApi api,List<DetectedItemInfo> DetectedAreas) {
         // TODO: Implement target item recognition logic here
+        boolean isTargetItemFound = false;
+        //Capture the image of the target Area
+
+        //call func to recognize target item
+        DetectedItemInfo targetAreaItemInfo = api.recognizeTargetItem();
+        if (targetAreaItemInfo != null&& !isTargetItemFound) {
+            //เทียบว่าในข้อมูลที่มีอันไหนตรงบ้าง
+            for(DetectedItemInfo Area : DetectedAreas){
+                for(AreaItem : Area.items){
+                    if(AreaItem.equals(targetAreaItemInfo.items.get(0))) {
+                        targetItemPoint = Area.point;
+                        targetItemQuaternion = Area.orientation;
+                        targetAreaItemInfo.arId = Area.arId; // Set the AR ID from the recognized area
+                        targetAreaItemInfo.imageFilename = Area.imageFilename; // Set the image filename
+
+                        isTargetItemFound = true;
+                        break; // Exit loop once we find a match
+                    }
+                }
+            }
+
+            moveToTargetItemAndSnapshot(api);
+            api.reportTargetItemRecognition(targetAreaItemInfo);
+        } else {
+            // Handle case where no item is recognized
+            api.reportNoTargetItemRecognized();
+        }
+        
         api.notifyRecognitionItem();
-        targetItemPoint = new Point(5.555d, -5.5555d, 5.5555d);
-        targetItemQuaternion = new Quaternion(0f, 0f, 0.707f, 0.707f);
-        moveToTargetItemAndSnapshot(api);
     }
     public static void moveToTargetItemAndSnapshot(KiboRpcApi api) {
         // TODO: Implement logic to move to the target item
