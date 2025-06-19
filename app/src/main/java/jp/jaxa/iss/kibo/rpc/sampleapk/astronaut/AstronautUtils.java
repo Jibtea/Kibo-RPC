@@ -3,6 +3,8 @@ package jp.jaxa.iss.kibo.rpc.sampleapk.astronaut;
 import gov.nasa.arc.astrobee.types.Point;
 import gov.nasa.arc.astrobee.types.Quaternion;
 import jp.jaxa.iss.kibo.rpc.api.KiboRpcApi;
+import jp.jaxa.iss.kibo.rpc.sampleapk.oasis.DetectedItemInfo;
+import java.util.List;
 
 /**
  * Utility class for astronaut-related actions.
@@ -17,38 +19,39 @@ public class AstronautUtils {
         api.moveTo(point, quaternion, false);
         api.reportRoundingCompletion();
     }
-    public static void recognizeAndReportTargetItem(KiboRpcApi api,List<DetectedItemInfo> DetectedAreas) {
+    public static void recognizeAndReportTargetItem(KiboRpcApi api) {
         // TODO: Implement target item recognition logic here
         boolean isTargetItemFound = false;
         //Capture the image of the target Area
 
         //call func to recognize target item
-        DetectedItemInfo targetAreaItemInfo = api.recognizeTargetItem();
+        DetectedItemInfo targetAreaItemInfo = null;
         if (targetAreaItemInfo != null&& !isTargetItemFound) {
             //เทียบว่าในข้อมูลที่มีอันไหนตรงบ้าง
-            for(DetectedItemInfo Area : DetectedAreas){
-                for(AreaItem : Area.items){
-                    if(AreaItem.equals(targetAreaItemInfo.items.get(0))) {
-                        targetItemPoint = Area.point;
-                        targetItemQuaternion = Area.orientation;
-                        targetAreaItemInfo.arId = Area.arId; // Set the AR ID from the recognized area
-                        targetAreaItemInfo.imageFilename = Area.imageFilename; // Set the image filename
-
-                        isTargetItemFound = true;
-                        break; // Exit loop once we find a match
-                    }
-                }
-            }
+//            for(DetectedItemInfo Area : DetectedAreas){
+//                for(AreaItem : Area.items){
+//                    if(AreaItem.equals(targetAreaItemInfo.items.get(0))) {
+//                        targetItemPoint = Area.point;
+//                        targetItemQuaternion = Area.orientation;
+//                        targetAreaItemInfo.arId = Area.arId; // Set the AR ID from the recognized area
+//                        targetAreaItemInfo.imageFilename = Area.imageFilename; // Set the image filename
+//
+//                        isTargetItemFound = true;
+//                        break; // Exit loop once we find a match
+//                    }
+//                }
+//            }
 
             moveToTargetItemAndSnapshot(api);
-            api.reportTargetItemRecognition(targetAreaItemInfo);
+            api.notifyRecognitionItem();
         } else {
             // Handle case where no item is recognized
-            api.reportNoTargetItemRecognized();
+            api.notifyRecognitionItem();
         }
         
         api.notifyRecognitionItem();
     }
+
     public static void moveToTargetItemAndSnapshot(KiboRpcApi api) {
         // TODO: Implement logic to move to the target item
         api.moveTo(targetItemPoint, targetItemQuaternion, true);

@@ -1,10 +1,12 @@
 package jp.jaxa.iss.kibo.rpc.sampleapk.oasis;
 
+import android.content.Context;
 import gov.nasa.arc.astrobee.types.Point;
 import gov.nasa.arc.astrobee.types.Quaternion;
 import jp.jaxa.iss.kibo.rpc.api.KiboRpcApi;
 import jp.jaxa.iss.kibo.rpc.sampleapk.vision.ArMarkerDetector;
 import org.opencv.core.Mat;
+import org.tensorflow.lite.Interpreter;
 import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
@@ -158,13 +160,6 @@ public class OasisUtils {
             if (!detectedItemsMap.containsKey(arId)) {
                 Mat rvec = rvecsMat.row(0);
                 Mat tvec = tvecsMat.row(0);
-                // Mat cropped =
-                // jp.jaxa.iss.kibo.rpc.sampleapk.vision.ArMarkerDetector.cropPaperArea(image,
-                // rvec, tvec, mats[0], mats[1]);
-                // api.saveMatImage(cropped,
-                // String.format("OasisArea%d_%d_AR%d_paper_boundary.png", areaIdx,
-                // orientationIdx, arId));
-                // Call drawPaperBoundary instead
                 jp.jaxa.iss.kibo.rpc.sampleapk.vision.ArMarkerDetector.drawPaperBoundary(image, rvec, tvec, mats[0],
                         mats[1]);
                 api.saveMatImage(image,
@@ -178,6 +173,7 @@ public class OasisUtils {
      * markers stored.
      */
     private static int detectAndStoreAllArMarkers(
+            Context context,
             Mat image,
             int areaIdx,
             int orientationIdx,
@@ -215,9 +211,41 @@ public class OasisUtils {
             String fileName = String.format("OasisArea%d_%d_AR%d.png", areaIdx, orientationIdx, arId);
             api.saveMatImage(image, fileName);
             java.util.List<String> items = new java.util.ArrayList<>();
+            // --- TFLite inference integration ---
+            try {
+                jp.jaxa.iss.kibo.rpc.sampleapk.vision.TFLiteObjectDetector detector = new jp.jaxa.iss.kibo.rpc.sampleapk.vision.TFLiteObjectDetector(context);
+                Mat cropped = jp.jaxa.iss.kibo.rpc.sampleapk.vision.ArMarkerDetector.cropPaperArea(image, rvecsMat.row(j), tvecsMat.row(j), mats[0], mats[1]);
+                java.util.Map<String, Float> detected = detector.detect(cropped);
+                for (String label : detected.keySet()) {
+                    items.add(label);
+                }
+                // Log and report detected items
+                if (!items.isEmpty()) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("Detected items for AR ").append(arId).append(": ");
+                    java.util.Map<String, Integer> itemCounts = new java.util.HashMap<>();
+                    for (String label : items) {
+                        itemCounts.put(label, itemCounts.getOrDefault(label, 0) + 1);
+                    }
+                    for (String label : itemCounts.keySet()) {
+                        int count = itemCounts.get(label);
+                        sb.append(label).append(" (count: ").append(count).append(") ");
+                        if (count > 1) {
+                            api.setAreaInfo(areaIdx, label, count);
+                        } else {
+                            api.setAreaInfo(areaIdx, label);
+                        }
+                    }
+                    Log.i("OasisUtils", sb.toString());
+                } else {
+                    Log.i("OasisUtils", "No items detected for AR " + arId);
+                }
+            } catch (Exception e) {
+                Log.e("OasisUtils", "TFLite inference failed: " + e.getMessage());
+            }
             DetectedItemInfo info = new DetectedItemInfo(
                     areaIdx, orientationIdx, point, orientation, arId,
-                    Arrays.copyOf(tvec, tvec.length), angle, items, fileName);
+                    java.util.Arrays.copyOf(tvec, tvec.length), angle, items, fileName);
             detectedItemsMap.put(arId, info);
             Log.i("OasisUtils",
                     String.format("AR marker FOUND (ID %d) in area %d, orientation %d (point: %s, quaternion: %s)",
@@ -241,7 +269,7 @@ public class OasisUtils {
      *                         all scans)
      * @return number of AR markers found
      */
-    public static int scanOasisArea(KiboRpcApi api, int areaIdx, List<Point> oasisPoints, Map<Integer, DetectedItemInfo> detectedItemsMap,
+    public static int scanOasisArea(Context context, KiboRpcApi api, int areaIdx, List<Point> oasisPoints, Map<Integer, DetectedItemInfo> detectedItemsMap,
             java.util.Set<Integer> visitedArIds) {
         List<Quaternion> oasisQuaternions = getOasisQuaternions(areaIdx);
         int totalNewMarkers = 0;
@@ -251,7 +279,7 @@ public class OasisUtils {
                 Log.w("OasisUtils", "Captured image is empty; skipping orientation " + i);
                 continue;
             }
-            int newMarkers = detectAndStoreAllArMarkers(image, areaIdx, i, oasisPoints.get(areaIdx),
+            int newMarkers = detectAndStoreAllArMarkers(context, image, areaIdx, i, oasisPoints.get(areaIdx),
                     oasisQuaternions.get(i), api, detectedItemsMap);
             totalNewMarkers += newMarkers;
             // Visit all unvisited AR markers after each detection
